@@ -243,7 +243,7 @@ function formatNumber(val, decimals = 2) {
   }).format(val);
 }
 
-// Búsqueda en la Base de Datos Tarifaria de SUNASS
+// Búsqueda y Facturación Escalonada por Bloques en la Base de Datos Tarifaria de SUNASS
 function lookupTariffRecord() {
   if (!window.TARIFAS_DB || !window.TARIFAS_DB.catalog) return null;
 
@@ -251,7 +251,7 @@ function lookupTariffRecord() {
   const loc = dom.selectLocalidad.value;
   const period = dom.selectPeriodo.value;
   const cat = dom.selectCategoria.value;
-  const volA = parseFloat(dom.inputA.value) || 0;
+  const volA = Math.max(0, parseFloat(dom.inputA.value) || 0);
 
   const epData = window.TARIFAS_DB.catalog[ep];
   if (!epData) return null;
@@ -262,36 +262,99 @@ function lookupTariffRecord() {
   const catData = perData[cat];
   if (!catData || catData.length === 0) return null;
 
-  // Si la categoría posee múltiples tramos (Comercial, Industrial, Estatal, etc.), se suman todos los tramos
-  if (catData.length > 1) {
-    const sumAlcanta = catData.reduce((sum, r) => sum + r.alcanta, 0);
-    const sumAgua = catData.reduce((sum, r) => sum + r.agua, 0);
-    const tramosStr = catData.map(r => (r.fin === null ? `${r.ini} a más` : `${r.ini}-${r.fin}`)).join(' + ');
-    const alcantaBreakdown = catData.map(r => formatNumber(r.alcanta, 4)).join(' + ');
-    const aguaBreakdown = catData.map(r => formatNumber(r.agua, 4)).join(' + ');
+  // Si la categoría tiene un único tramo tarifario
+  if (catData.length === 1) {
+    const single = catData[0];
+    const totalAlcanta = +(volA * single.alcanta).toFixed(2);
+    const totalAgua = +(volA * single.agua).toFixed(2);
 
     return {
-      ini: 0,
-      fin: null,
-      alcanta: +sumAlcanta.toFixed(4),
-      agua: +sumAgua.toFixed(4),
-      cargo: catData[0].cargo,
-      res: catData[0].res,
-      tramoDesc: `${tramosStr} (Suma de ${catData.length} tramos)`,
-      breakdownText: `${alcantaBreakdown} = S/ ${formatNumber(sumAlcanta, 4)}`,
-      aguaBreakdownText: `${aguaBreakdown} = S/ ${formatNumber(sumAgua, 4)}`,
-      isEscalable: true
+      ...single,
+      volA,
+      alcanta: single.alcanta,
+      agua: single.agua,
+      totalAlcanta,
+      totalAgua,
+      tramoDesc: (single.fin === null ? `${single.ini} m³ a más` : `${single.ini} a ${single.fin} m³`),
+      breakdownText: `S/ ${formatNumber(single.alcanta, 4)} por m³`,
+      aguaBreakdownText: `S/ ${formatNumber(single.agua, 4)} por m³`,
+      cCalcBreakdown: `${formatNumber(volA)} m³ × S/ ${formatNumber(single.alcanta, 4)}`,
+      isEscalable: false,
+      activeTramosCount: 1
     };
   }
 
-  // Si la categoría tiene un único tramo
-  const single = catData[0];
+  // Si la categoría tiene múltiples tramos (facturación por bloques de consumo)
+  let remVol = volA;
+  let totalAlcanta = 0;
+  let totalAgua = 0;
+  const tramoCalculations = [];
+
+  for (let i = 0; i < catData.length; i++) {
+    const tramo = catData[i];
+    const tramoCapacity = (tramo.fin === null || tramo.fin === undefined) ? Infinity : (tramo.fin - tramo.ini);
+    
+    // Volumen asignado a este bloque
+    const volInTramo = Math.min(remVol, tramoCapacity);
+    
+    if (volInTramo > 0 || (i === 0 && volA === 0)) {
+      const impAlc = volInTramo * tramo.alcanta;
+      const impAg = volInTramo * tramo.agua;
+      totalAlcanta += impAlc;
+      totalAgua += impAg;
+
+      const tramoName = tramo.fin === null ? `>${tramo.ini} m³` : `${tramo.ini}-${tramo.fin} m³`;
+      tramoCalculations.push({
+        tramoName,
+        volInTramo,
+        alcanta: tramo.alcanta,
+        agua: tramo.agua,
+        impAlc,
+        impAg
+      });
+
+      remVol -= volInTramo;
+      if (remVol <= 0) break;
+    }
+  }
+
+  // Tarifa media unitaria equivalente
+  const effectiveTariffB = volA > 0 ? +(totalAlcanta / volA).toFixed(4) : catData[0].alcanta;
+  const effectiveTariffAgua = volA > 0 ? +(totalAgua / volA).toFixed(4) : catData[0].agua;
+
+  // Formateo de descripciones y desgloses
+  const isMultipleActiveTramos = tramoCalculations.length > 1;
+  const activeTramosDesc = tramoCalculations.map(t => `${formatNumber(t.volInTramo)} m³ en ${t.tramoName}`).join(', ');
+  
+  const cCalcBreakdown = isMultipleActiveTramos
+    ? tramoCalculations.map(t => `(${formatNumber(t.volInTramo)} m³ × S/ ${formatNumber(t.alcanta, 4)})`).join(' + ')
+    : `${formatNumber(volA)} m³ × S/ ${formatNumber(tramoCalculations[0]?.alcanta || catData[0].alcanta, 4)}`;
+
+  const alcantaBreakdownText = isMultipleActiveTramos
+    ? tramoCalculations.map(t => `${formatNumber(t.volInTramo)}m³×${formatNumber(t.alcanta, 2)}`).join(' + ') + ` = S/ ${formatNumber(totalAlcanta, 2)}`
+    : `S/ ${formatNumber(tramoCalculations[0]?.alcanta || catData[0].alcanta, 4)} por m³`;
+
+  const aguaBreakdownText = isMultipleActiveTramos
+    ? tramoCalculations.map(t => `${formatNumber(t.volInTramo)}m³×${formatNumber(t.agua, 2)}`).join(' + ') + ` = S/ ${formatNumber(totalAgua, 2)}`
+    : `S/ ${formatNumber(tramoCalculations[0]?.agua || catData[0].agua, 4)} por m³`;
+
   return {
-    ...single,
-    tramoDesc: (single.fin === null ? `${single.ini} m³ a más` : `${single.ini} a ${single.fin} m³`),
-    breakdownText: `S/ ${formatNumber(single.alcanta, 4)}`,
-    aguaBreakdownText: `S/ ${formatNumber(single.agua, 4)}`,
-    isEscalable: false
+    volA,
+    alcanta: effectiveTariffB,
+    agua: effectiveTariffAgua,
+    totalAlcanta: +totalAlcanta.toFixed(2),
+    totalAgua: +totalAgua.toFixed(2),
+    cargo: catData[0].cargo,
+    res: catData[0].res,
+    tramoDesc: isMultipleActiveTramos 
+      ? `Escalonado (${activeTramosDesc})` 
+      : (tramoCalculations[0]?.tramoName || `${catData[0].ini} a ${catData[0].fin || 'más'} m³`),
+    breakdownText: alcantaBreakdownText,
+    aguaBreakdownText: aguaBreakdownText,
+    cCalcBreakdown,
+    isEscalable: isMultipleActiveTramos,
+    activeTramosCount: tramoCalculations.length,
+    tramoCalculations
   };
 }
 
@@ -302,7 +365,7 @@ function updateTariffFromCatalog() {
     if (isAutoTariffB) {
       dom.inputB.value = record.alcanta;
       if (record.isEscalable) {
-        dom.bSourceHint.textContent = `Tarifa escalable sumada (${record.breakdownText})`;
+        dom.bSourceHint.textContent = `Tarifa media escalonada por tramos (${record.breakdownText})`;
       } else {
         dom.bSourceHint.textContent = `Obtenida del pliego SUNASS (${dom.selectEP.value})`;
       }
@@ -312,7 +375,7 @@ function updateTariffFromCatalog() {
     dom.metaResolucion.textContent = record.res || 'Resolución SUNASS';
     dom.metaTramo.textContent = record.tramoDesc;
     dom.metaCargoFijo.textContent = `Cargo fijo: S/ ${formatNumber(record.cargo, 3)}`;
-    dom.metaTarifaAgua.textContent = `Tarifa agua: S/ ${formatNumber(record.agua, 3)} / m³ ${record.isEscalable ? '(' + record.aguaBreakdownText + ')' : ''}`;
+    dom.metaTarifaAgua.textContent = `Tarifa agua: S/ ${formatNumber(record.agua, 4)} / m³ ${record.isEscalable ? '(Total: S/ ' + formatCurrency(record.totalAgua) + ')' : ''}`;
   } else {
     dom.metaTramo.textContent = 'No disponible';
   }
@@ -364,15 +427,22 @@ function evaluateParameter(paramKey, rawValue) {
 // Cálculo principal
 function calculateVMA() {
   updateTariffFromCatalog();
+  const record = lookupTariffRecord();
 
   const valA = parseFloat(dom.inputA.value) || 0;
   const valB = parseFloat(dom.inputB.value) || 0;
 
   let valC = 0;
   if (isAutoCalcC) {
-    valC = +(valA * valB).toFixed(2);
-    dom.inputC.value = valC.toFixed(2);
-    dom.cCalcFormulaHint.textContent = `${formatNumber(valA)} m³ × S/ ${formatNumber(valB, 4)} por m³`;
+    if (record && record.isEscalable && isAutoTariffB) {
+      valC = record.totalAlcanta;
+      dom.inputC.value = valC.toFixed(2);
+      dom.cCalcFormulaHint.textContent = `${record.cCalcBreakdown} = S/ ${formatCurrency(valC)}`;
+    } else {
+      valC = +(valA * valB).toFixed(2);
+      dom.inputC.value = valC.toFixed(2);
+      dom.cCalcFormulaHint.textContent = `${formatNumber(valA)} m³ × S/ ${formatNumber(valB, 4)} por m³`;
+    }
   } else {
     valC = parseFloat(dom.inputC.value) || 0;
     dom.cCalcFormulaHint.textContent = `Importe personalizado manual`;
