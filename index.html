@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora VMA - Liquidación de Pago Adicional SUNASS</title>
+  <meta name="description" content="Calculadora técnica oficial con catálogo de tarifas SUNASS para liquidación del Pago Adicional (PA) por exceso de concentración de Valores Máximos Admisibles (VMA)." />
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <!-- Database Script -->
+  <script src="tarifas_data.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-symbol">
+          <i class="ph-bold ph-drop-half-bottom"></i>
+        </div>
+        <div class="brand-info">
+          <span class="brand-authority">SUNASS · Metodología Regulatoria VMA</span>
+          <h1 class="brand-title">Liquidación de Pago Adicional por Exceso</h1>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="quick-cases-dropdown">
+          <label for="selectPreset" class="sr-only">Seleccionar caso de estudio</label>
+          <select id="selectPreset" class="select-field" title="Cargar caso de estudio predeterminado">
+            <option value="salud" selected>Caso: Centro de Salud (Ejemplo Diapositiva)</option>
+            <option value="restaurante">Caso: Restaurante / Pollería (Trujillo · SEDALIB)</option>
+            <option value="textil">Caso: Industria Textil (Arequipa · SEDAPAR)</option>
+            <option value="cumple">Caso: Cumplimiento total (Sin exceso)</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-print" id="btnPrintReport">
+          <i class="ph ph-printer"></i>
+          <span>Imprimir liquidación</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout -->
+  <main class="app-layout">
+    <!-- Left Panel: Tariff Catalog & Inputs -->
+    <aside class="panel-inputs">
+      
+      <!-- Section 0: Catálogo Oficial de Tarifas SUNASS -->
+      <div class="input-card tariff-lookup-card">
+        <div class="card-headline">
+          <div class="step-indicator step-ep">
+            <i class="ph-bold ph-buildings"></i>
+          </div>
+          <div>
+            <h2 class="card-title">Pliego Tarifario Regulado SUNASS</h2>
+            <p class="card-subtitle">Determina automáticamente la tarifa unitaria según la EPS y ubicación</p>
+          </div>
+        </div>
+
+        <div class="tariff-selectors-grid">
+          <!-- Empresa Prestadora (EP) -->
+          <div class="field-item">
+            <label for="selectEP" class="field-label">Empresa Prestadora (EP)</label>
+            <div class="select-wrapper">
+              <select id="selectEP" class="select-input"></select>
+            </div>
+          </div>
+
+          <!-- Localidad / Distrito -->
+          <div class="field-item">
+            <label for="selectLocalidad" class="field-label">Localidad / Distrito</label>
+            <div class="select-wrapper">
+              <select id="selectLocalidad" class="select-input"></select>
+            </div>
+          </div>
+
+          <!-- Periodo Facturación -->
+          <div class="field-item">
+            <label for="selectPeriodo" class="field-label">Periodo (Año - Mes)</label>
+            <div class="select-wrapper">
+              <select id="selectPeriodo" class="select-input"></select>
+            </div>
+          </div>
+
+          <!-- Categoría UND -->
+          <div class="field-item">
+            <label for="selectCategoria" class="field-label">Categoría de Usuario (UND)</label>
+            <div class="select-wrapper">
+              <select id="selectCategoria" class="select-input"></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tariff Resolution Metadata Badge -->
+        <div class="tariff-meta-box" id="tariffMetaBox">
+          <div class="meta-row">
+            <span class="meta-label">Norma / Resolución:</span>
+            <span class="meta-value font-mono" id="metaResolucion">Resolucion Nro. 079-2021-SUNASS-CD</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Tramo de consumo aplicado:</span>
+            <span class="meta-value font-mono" id="metaTramo">0 a 1000 m³</span>
+          </div>
+          <div class="meta-sub-metrics">
+            <span id="metaCargoFijo">Cargo fijo: S/ 6.30</span>
+            <span id="metaTarifaAgua">Tarifa agua: S/ 8.82 / m³</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 1: Facturación Comercial Base (A, B, C) -->
+      <div class="input-card">
+        <div class="card-headline">
+          <div class="step-indicator">1</div>
+          <div>
+            <h2 class="card-title">Datos comerciales de facturación</h2>
+            <p class="card-subtitle">Cálculo del importe base facturado por servicio de saneamiento</p>
+          </div>
+        </div>
+
+        <div class="fields-stack">
+          <!-- Input A -->
+          <div class="field-item">
+            <label for="inputA" class="field-label">
+              <span class="token-letter">A</span>
+              <span>Volumen de agua potable consumido</span>
+            </label>
+            <div class="input-group">
+              <input type="number" id="inputA" step="0.01" min="0" value="296" />
+              <span class="unit-tag">m³/mes</span>
+            </div>
+          </div>
+
+          <!-- Input B (Auto from Catalog or Manual Override) -->
+          <div class="field-item">
+            <div class="derived-header">
+              <label for="inputB" class="field-label">
+                <span class="token-letter">B</span>
+                <span>Tarifa servicio de saneamiento (alcantarillado)</span>
+              </label>
+              <button type="button" id="btnToggleLockB" class="btn-lock active" title="Tarifa vinculada automáticamente al pliego SUNASS. Clic para editar manualmente.">
+                <i class="ph-bold ph-lock-key"></i>
+              </button>
+            </div>
+            <div class="input-group">
+              <span class="currency-prefix">S/</span>
+              <input type="number" id="inputB" step="0.0001" min="0" value="4.21" />
+              <span class="unit-tag">por m³</span>
+            </div>
+            <span class="dynamic-help-text" id="bSourceHint">Obtenida automáticamente del pliego SUNASS</span>
+          </div>
+
+          <!-- Input C (A x B) -->
+          <div class="field-item field-derived">
+            <div class="derived-header">
+              <label for="inputC" class="field-label">
+                <span class="token-letter token-derived">C</span>
+                <span>Importe facturado base saneamiento (A × B)</span>
+              </label>
+              <span class="tax-tag">Sin IGV</span>
+            </div>
+            <div class="input-group">
+              <span class="currency-prefix">S/</span>
+              <input type="number" id="inputC" step="0.01" min="0" value="1246.16" />
+              <button type="button" id="btnToggleLockC" class="btn-lock active" title="Cálculo automático C = A × B activado.">
+                <i class="ph-bold ph-lock-key"></i>
+              </button>
+            </div>
+            <span class="dynamic-help-text" id="cCalcFormulaHint">296 m³ × S/ 4.2100 por m³</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Concentración de Descarga (Laboratorio) -->
+      <div class="input-card">
+        <div class="card-headline">
+          <div class="step-indicator">2</div>
+          <div>
+            <h2 class="card-title">Ensayos de laboratorio (Efluente)</h2>
+            <p class="card-subtitle">Concentración descargada en la red pública de alcantarillado</p>
+          </div>
+        </div>
+
+        <div class="params-entry-stack">
+          
+          <!-- DBO5 -->
+          <div class="param-entry" id="entry-dbo5">
+            <div class="param-entry-head">
+              <div class="param-titles">
+                <span class="param-symbol">DBO₅</span>
+                <span class="param-full">Demanda Bioquímica de Oxígeno</span>
+              </div>
+              <span class="vma-threshold">VMA: 500 mg/L</span>
+            </div>
+            
+            <div class="param-input-line">
+              <div class="input-group">
+                <input type="number" id="inputDBO5" step="0.1" min="0" value="1100" />
+                <span class="unit-tag">mg/L</span>
+              </div>
+              <div class="param-flag" id="flag-dbo5">
+                <span class="flag-dot"></span>
+                <span class="flag-text">Supera VMA</span>
+              </div>
+            </div>
+
+            <!-- Signature Visual Range Gauge -->
+            <div class="range-gauge" id="gauge-dbo5">
+              <div class="gauge-segments">
+                <span class="seg seg-ok" title="Cumple (≤ 500)"></span>
+                <span class="seg seg-r1" title="Rango 1 (500.1 - 600)"></span>
+                <span class="seg seg-r2" title="Rango 2 (600.1 - 1000)"></span>
+                <span class="seg seg-r3" title="Rango 3 (1000.1 - 2500)"></span>
+                <span class="seg seg-r4" title="Rango 4 (> 2500)"></span>
+              </div>
+              <div class="gauge-cursor" id="cursor-dbo5"></div>
+            </div>
+          </div>
+
+          <!-- DQO -->
+          <div class="param-entry" id="entry-dqo">
+            <div class="param-entry-head">
+              <div class="param-titles">
+                <span class="param-symbol">DQO</span>
+                <span class="param-full">Demanda Química de Oxígeno</span>
+              </div>
+              <span class="vma-threshold">VMA: 1000 mg/L</span>
+            </div>
+            
+            <div class="param-input-line">
+              <div class="input-group">
+                <input type="number" id="inputDQO" step="0.1" min="0" value="2635" />
+                <span class="unit-tag">mg/L</span>
+              </div>
+              <div class="param-flag" id="flag-dqo">
+                <span class="flag-dot"></span>
+                <span class="flag-text">Supera VMA</span>
+              </div>
+            </div>
+
+            <!-- Signature Visual Range Gauge -->
+            <div class="range-gauge" id="gauge-dqo">
+              <div class="gauge-segments">
+                <span class="seg seg-ok" title="Cumple (≤ 1000)"></span>
+                <span class="seg seg-r1" title="Rango 1 (1000.1 - 1200)"></span>
+                <span class="seg seg-r2" title="Rango 2 (1200.1 - 2500)"></span>
+                <span class="seg seg-r3" title="Rango 3 (2500.1 - 4500)"></span>
+                <span class="seg seg-r4" title="Rango 4 (> 4500)"></span>
+              </div>
+              <div class="gauge-cursor" id="cursor-dqo"></div>
+            </div>
+          </div>
+
+          <!-- SST -->
+          <div class="param-entry" id="entry-sst">
+            <div class="param-entry-head">
+              <div class="param-titles">
+                <span class="param-symbol">SST</span>
+                <span class="param-full">Sólidos Suspendidos Totales</span>
+              </div>
+              <span class="vma-threshold">VMA: 500 mg/L</span>
+            </div>
+            
+            <div class="param-input-line">
+              <div class="input-group">
+                <input type="number" id="inputSST" step="0.1" min="0" value="2726" />
+                <span class="unit-tag">mg/L</span>
+              </div>
+              <div class="param-flag" id="flag-sst">
+                <span class="flag-dot"></span>
+                <span class="flag-text">Supera VMA</span>
+              </div>
+            </div>
+
+            <!-- Signature Visual Range Gauge -->
+            <div class="range-gauge" id="gauge-sst">
+              <div class="gauge-segments">
+                <span class="seg seg-ok" title="Cumple (≤ 500)"></span>
+                <span class="seg seg-r1" title="Rango 1 (500.1 - 600)"></span>
+                <span class="seg seg-r2" title="Rango 2 (600.1 - 1000)"></span>
+                <span class="seg seg-r3" title="Rango 3 (1000.1 - 3500)"></span>
+                <span class="seg seg-r4" title="Rango 4 (> 3500)"></span>
+              </div>
+              <div class="gauge-cursor" id="cursor-sst"></div>
+            </div>
+          </div>
+
+          <!-- AyG -->
+          <div class="param-entry" id="entry-ayg">
+            <div class="param-entry-head">
+              <div class="param-titles">
+                <span class="param-symbol">AyG</span>
+                <span class="param-full">Aceites y Grasas</span>
+              </div>
+              <span class="vma-threshold">VMA: 100 mg/L</span>
+            </div>
+            
+            <div class="param-input-line">
+              <div class="input-group">
+                <input type="number" id="inputAyG" step="0.1" min="0" value="387" />
+                <span class="unit-tag">mg/L</span>
+              </div>
+              <div class="param-flag" id="flag-ayg">
+                <span class="flag-dot"></span>
+                <span class="flag-text">Supera VMA</span>
+              </div>
+            </div>
+
+            <!-- Signature Visual Range Gauge -->
+            <div class="range-gauge" id="gauge-ayg">
+              <div class="gauge-segments">
+                <span class="seg seg-ok" title="Cumple (≤ 100)"></span>
+                <span class="seg seg-r1" title="Rango 1 (100.1 - 200)"></span>
+                <span class="seg seg-r2" title="Rango 2 (200.1 - 350)"></span>
+                <span class="seg seg-r3" title="Rango 3 (350.1 - 600)"></span>
+                <span class="seg seg-r4" title="Rango 4 (> 600)"></span>
+              </div>
+              <div class="gauge-cursor" id="cursor-ayg"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Panel: Results & Regulatory Matrices -->
+    <section class="panel-results">
+      
+      <!-- Fiscal Liquidación Hero Card -->
+      <div class="fiscal-hero-bill">
+        <div class="bill-primary">
+          <div class="bill-badge-header">
+            <span class="compliance-state-pill" id="heroComplianceBadge">
+              <i class="ph-bold ph-warning"></i>
+              <span>Exceso de concentración detectado</span>
+            </span>
+            <span class="penalty-multiplier" id="heroMultiplierBadge">
+              Factor Total F = <strong>1400%</strong> (14.0×)
+            </span>
+          </div>
+
+          <div class="bill-headline">
+            <span class="bill-label">Pago Adicional por Exceso de Concentración (PA)</span>
+            <div class="bill-main-figure">
+              <span class="figure-currency">S/</span>
+              <span class="figure-amount" id="displayPAAmount">17,446.24</span>
+            </div>
+          </div>
+
+          <p class="bill-annotation" id="billAnnotation">
+            Liquidación correspondiente a 4 parámetros que superan los Valores Máximos Admisibles.
+          </p>
+        </div>
+
+        <div class="bill-breakdown-slip">
+          <h3 class="slip-title">Liquidación total del recibo</h3>
+          
+          <div class="slip-row">
+            <span>Importe base saneamiento (C)</span>
+            <span class="slip-num" id="slipBaseC">S/ 1,246.16</span>
+          </div>
+          
+          <div class="slip-row slip-accent">
+            <span>+ Recargo por exceso (PA)</span>
+            <span class="slip-num" id="slipAmountPA">S/ 17,446.24</span>
+          </div>
+
+          <div class="slip-divider"></div>
+
+          <div class="slip-row">
+            <span>Subtotal saneamiento (Sin IGV)</span>
+            <span class="slip-num font-medium" id="slipSubtotal">S/ 18,692.40</span>
+          </div>
+
+          <div class="slip-row">
+            <span>IGV (18%)</span>
+            <span class="slip-num" id="slipIGV">S/ 3,364.63</span>
+          </div>
+
+          <div class="slip-row slip-total">
+            <span>Total a facturar estimado</span>
+            <span class="slip-num total-highlight" id="slipTotalWithIGV">S/ 22,057.03</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step by Step Technical Breakdown -->
+      <div class="technical-workflow">
+        
+        <!-- Step 1 Card -->
+        <article class="workflow-card">
+          <header class="workflow-header">
+            <div class="step-circle">1</div>
+            <div>
+              <h3 class="workflow-title">Caracterización y verificación de límites</h3>
+              <p class="workflow-desc">Comparación individual del efluente respecto a los Valores Máximos Admisibles (VMA)</p>
+            </div>
+          </header>
+
+          <div class="workflow-body">
+            <div class="table-container">
+              <table class="tech-table">
+                <thead>
+                  <tr>
+                    <th>Parámetro evaluado</th>
+                    <th>Sigla</th>
+                    <th>Unidad</th>
+                    <th>VMA límite</th>
+                    <th>Concentración de descarga</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyStep1Rows">
+                  <!-- Dynamic JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <!-- Steps 2 & 3 Card: Matrices -->
+        <article class="workflow-card">
+          <header class="workflow-header">
+            <div class="step-circle">2 & 3</div>
+            <div>
+              <h3 class="workflow-title">Matrices regulatorias y asignación de factores (Fi)</h3>
+              <p class="workflow-desc">Identificación de rango y factor de ajuste individual normativo SUNASS</p>
+            </div>
+          </header>
+
+          <div class="workflow-body">
+            <div class="matrices-split">
+              
+              <!-- Matrix 1: Rangos -->
+              <div class="matrix-card">
+                <div class="matrix-card-title">
+                  <i class="ph-bold ph-chart-bar"></i>
+                  <span>Rangos de concentración (mg/L)</span>
+                </div>
+                <div class="table-container">
+                  <table class="tech-table matrix-view" id="matrixRanges">
+                    <thead>
+                      <tr>
+                        <th>Rango</th>
+                        <th>DBO₅</th>
+                        <th>DQO</th>
+                        <th>SST</th>
+                        <th>AyG</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="vma-row">
+                        <td><strong>VMA</strong></td>
+                        <td>500</td>
+                        <td>1000</td>
+                        <td>500</td>
+                        <td>100</td>
+                      </tr>
+                      <tr data-rango="1" id="mRange-1">
+                        <td>Rango 1</td>
+                        <td data-param="dbo5">500.1 – 600</td>
+                        <td data-param="dqo">1000.1 – 1200</td>
+                        <td data-param="sst">500.1 – 600</td>
+                        <td data-param="ayg">100.1 – 200</td>
+                      </tr>
+                      <tr data-rango="2" id="mRange-2">
+                        <td>Rango 2</td>
+                        <td data-param="dbo5">600.1 – 1000</td>
+                        <td data-param="dqo">1200.1 – 2500</td>
+                        <td data-param="sst">600.1 – 1000</td>
+                        <td data-param="ayg">200.1 – 350</td>
+                      </tr>
+                      <tr data-rango="3" id="mRange-3">
+                        <td>Rango 3</td>
+                        <td data-param="dbo5">1000.1 – 2500</td>
+                        <td data-param="dqo">2500.1 – 4500</td>
+                        <td data-param="sst">1000.1 – 3500</td>
+                        <td data-param="ayg">350.1 – 600</td>
+                      </tr>
+                      <tr data-rango="4" id="mRange-4">
+                        <td>Rango 4</td>
+                        <td data-param="dbo5">&gt; 2500</td>
+                        <td data-param="dqo">&gt; 4500</td>
+                        <td data-param="sst">&gt; 3500</td>
+                        <td data-param="ayg">&gt; 600</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Matrix 2: Factores Fi -->
+              <div class="matrix-card">
+                <div class="matrix-card-title">
+                  <i class="ph-bold ph-percent"></i>
+                  <span>Factores individuales normativos (Fi)</span>
+                </div>
+                <div class="table-container">
+                  <table class="tech-table matrix-view" id="matrixFactors">
+                    <thead>
+                      <tr>
+                        <th>Rango</th>
+                        <th>F DBO₅</th>
+                        <th>F DQO</th>
+                        <th>F SST</th>
+                        <th>F AyG</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr data-rango="1" id="mFactor-1">
+                        <td>Rango 1</td>
+                        <td data-param="dbo5">60%</td>
+                        <td data-param="dqo">84%</td>
+                        <td data-param="sst">48%</td>
+                        <td data-param="ayg">48%</td>
+                      </tr>
+                      <tr data-rango="2" id="mFactor-2">
+                        <td>Rango 2</td>
+                        <td data-param="dbo5">155%</td>
+                        <td data-param="dqo">217%</td>
+                        <td data-param="sst">124%</td>
+                        <td data-param="ayg">124%</td>
+                      </tr>
+                      <tr data-rango="3" id="mFactor-3">
+                        <td>Rango 3</td>
+                        <td data-param="dbo5">350%</td>
+                        <td data-param="dqo">490%</td>
+                        <td data-param="sst">280%</td>
+                        <td data-param="ayg">280%</td>
+                      </tr>
+                      <tr data-rango="4" id="mFactor-4">
+                        <td>Rango 4</td>
+                        <td data-param="dbo5">500%</td>
+                        <td data-param="dqo">700%</td>
+                        <td data-param="sst">400%</td>
+                        <td data-param="ayg">400%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+        <!-- Steps 4 & 5 Card: Formulas -->
+        <article class="workflow-card">
+          <header class="workflow-header">
+            <div class="step-circle">4 & 5</div>
+            <div>
+              <h3 class="workflow-title">Desarrollo algebraico del cálculo final</h3>
+              <p class="workflow-desc">Suma de factores de ajuste y liquidación por volumen facturado</p>
+            </div>
+          </header>
+
+          <div class="workflow-body">
+            <div class="algebraic-grid">
+              
+              <!-- Step 4 Box -->
+              <div class="math-box">
+                <span class="math-label">Paso 4: Factor de ajuste total (F)</span>
+                <div class="math-formula-code" id="boxFormulaF">
+                  F = 350_{DBO5} + 490_{DQO} + 280_{SST} + 280_{AyG}
+                </div>
+                <div class="math-outcome">
+                  <span>Factor consolidado:</span>
+                  <strong class="math-result-tag" id="boxResultF">F = 1400%</strong>
+                </div>
+              </div>
+
+              <!-- Step 5 Box -->
+              <div class="math-box math-box-primary">
+                <span class="math-label">Paso 5: Pago adicional (PA = C × F)</span>
+                <div class="math-formula-code" id="boxFormulaPA">
+                  PA = S/ 1,246.16 × 1400%
+                </div>
+                <div class="math-outcome">
+                  <span>Liquidación PA:</span>
+                  <strong class="math-result-tag result-accent" id="boxResultPA">PA = S/ 17,446.24</strong>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <p>Cálculo estructurado conforme al marco normativo de Valores Máximos Admisibles (VMA) para descargas de aguas residuales no domésticas en el sistema de alcantarillado sanitario (D.S. N° 010-2019-VIVIENDA / R.C.D. N° 025-2011-SUNASS-CD).</p>
+    </div>
+  </footer>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>
