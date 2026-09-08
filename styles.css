@@ -32,10 +32,10 @@
   --border-subtle: #e2e8f0;
   --border-strong: #cbd5e1;
 
-  /* Active Matrix Cells */
-  --matrix-active-bg: #fef08a;
-  --matrix-active-border: #eab308;
-  --matrix-active-text: #713f12;
+  /* High-Contrast Active Matrix Cells (as shown in reference screenshots) */
+  --matrix-active-bg: #ffffff;
+  --matrix-active-border: #000000;
+  --matrix-active-text: #000000;
 
   /* Typography */
   --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -79,6 +79,42 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ==========================================================================
+   Toast Notification
+   ========================================================================== */
+
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--slate-navy);
+  color: #ffffff;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(15px);
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.toast-notification i {
+  color: var(--compliance-emerald);
+  font-size: 1.2rem;
+}
+
+.toast-notification.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ==========================================================================
@@ -178,14 +214,15 @@ body {
   border: none;
 }
 
-.btn-print {
-  background: rgba(255, 255, 255, 0.08);
+.btn-export-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
 }
 
-.btn-print:hover {
-  background: rgba(255, 255, 255, 0.16);
+.btn-export-primary:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+  transform: translateY(-1px);
 }
 
 /* ==========================================================================
@@ -775,6 +812,13 @@ body {
   gap: 1.35rem;
 }
 
+.exportable-resolution-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  background: transparent;
+}
+
 .workflow-card {
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
@@ -787,9 +831,13 @@ body {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 1.1rem 1.4rem;
+  padding: 1rem 1.4rem;
   background: var(--surface-elevated);
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.workflow-header-info {
+  flex: 1;
 }
 
 .step-circle {
@@ -814,6 +862,27 @@ body {
 .workflow-desc {
   font-size: 0.76rem;
   color: var(--text-muted);
+}
+
+.btn-card-snap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--slate-navy);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-card-snap:hover {
+  background: var(--slate-navy);
+  color: #ffffff;
+  border-color: var(--slate-navy);
 }
 
 .workflow-body {
@@ -903,8 +972,8 @@ body {
 .matrix-view th, .matrix-view td {
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  padding: 0.55rem 0.45rem;
+  font-size: 0.82rem;
+  padding: 0.65rem 0.5rem;
 }
 
 .matrix-view th:first-child, .matrix-view td:first-child {
@@ -919,11 +988,16 @@ body {
   color: var(--text-muted);
 }
 
+/* Active Highlight Cell - Bold Black Border Box (As seen in Reference Screenshots) */
 .matrix-view td.cell-active {
   background-color: var(--matrix-active-bg) !important;
   color: var(--matrix-active-text) !important;
   font-weight: 800 !important;
-  box-shadow: inset 0 0 0 2px var(--matrix-active-border);
+  font-size: 0.9rem !important;
+  outline: 2.5px solid #000000 !important;
+  outline-offset: -2.5px;
+  position: relative;
+  z-index: 2;
 }
 
 /* Algebraic Formulas Grid */
@@ -940,10 +1014,10 @@ body {
 }
 
 .math-box {
-  background: var(--surface-elevated);
+  background: #ffffff;
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  padding: 1.1rem;
+  padding: 1.15rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -952,23 +1026,23 @@ body {
 
 .math-box-primary {
   border-color: var(--hydro-cyan);
-  background: #f0f9ff;
+  background: #ffffff;
 }
 
 .math-label {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--slate-navy);
 }
 
 .math-formula-code {
   font-family: var(--font-mono);
-  font-size: 0.88rem;
-  font-weight: 600;
-  background: #ffffff;
-  padding: 0.75rem 0.95rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: #f8fafc;
+  padding: 0.85rem 1rem;
   border-radius: var(--radius-xs);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-strong);
   color: var(--slate-navy);
   overflow-x: auto;
 }
@@ -977,22 +1051,22 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
 }
 
 .math-result-tag {
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 800;
-  background: var(--slate-navy);
-  color: #ffffff;
-  padding: 0.3rem 0.85rem;
+  background: transparent;
+  color: #475569;
+  padding: 0.2rem 0.5rem;
   border-radius: var(--radius-xs);
 }
 
 .math-result-tag.result-accent {
-  background: var(--hydro-cyan);
+  color: #0f172a;
 }
 
 /* Footer */
@@ -1009,44 +1083,4 @@ body {
 .footer-inner {
   max-width: 850px;
   margin: 0 auto;
-}
-
-/* Print Format */
-@media print {
-  body {
-    background: #ffffff;
-    color: #000000;
-  }
-
-  .app-header, .btn, .btn-lock, .select-field, .app-footer, .range-gauge {
-    display: none !important;
-  }
-
-  .app-layout {
-    display: block;
-    padding: 0;
-    margin: 0;
-  }
-
-  .input-card, .workflow-card, .fiscal-hero-bill {
-    border: 1px solid #000000 !important;
-    box-shadow: none !important;
-    page-break-inside: avoid;
-    margin-bottom: 1.25rem;
-  }
-
-  .fiscal-hero-bill {
-    background: #ffffff !important;
-    color: #000000 !important;
-  }
-
-  .figure-currency, .figure-amount, .slip-title, .slip-num, .total-highlight {
-    color: #000000 !important;
-  }
-
-  .matrix-view td.cell-active {
-    background: #e2e8f0 !important;
-    box-shadow: inset 0 0 0 2px #000000 !important;
-    color: #000000 !important;
-  }
 }

@@ -157,6 +157,16 @@ const dom = {
   slipIGV: document.getElementById('slipIGV'),
   slipTotalWithIGV: document.getElementById('slipTotalWithIGV'),
 
+  // Botones de Exportación de Imagen
+  btnExportResolutionImg: document.getElementById('btnExportResolutionImg'),
+  btnSnapMatrices: document.getElementById('btnSnapMatrices'),
+  btnSnapFormulas: document.getElementById('btnSnapFormulas'),
+  exportResolutionZone: document.getElementById('exportResolutionZone'),
+  cardStep23: document.getElementById('cardStep23'),
+  cardStep45: document.getElementById('cardStep45'),
+  toastNotification: document.getElementById('toastNotification'),
+  toastMessage: document.getElementById('toastMessage'),
+
   // Tablas y Fórmulas
   tbodyStep1Rows: document.getElementById('tbodyStep1Rows'),
   boxFormulaF: document.getElementById('boxFormulaF'),
@@ -164,6 +174,53 @@ const dom = {
   boxFormulaPA: document.getElementById('boxFormulaPA'),
   boxResultPA: document.getElementById('boxResultPA')
 };
+
+// Toast de retroalimentación
+function showToast(msg) {
+  if (!dom.toastNotification || !dom.toastMessage) return;
+  dom.toastMessage.textContent = msg;
+  dom.toastNotification.classList.add('show');
+  setTimeout(() => {
+    dom.toastNotification.classList.remove('show');
+  }, 3500);
+}
+
+// Exportar elemento DOM como imagen PNG de alta resolución
+async function exportElementToImage(element, filename) {
+  if (!element) return;
+  if (typeof window.html2canvas !== 'function') {
+    alert('La función de captura de imagen está cargando...');
+    return;
+  }
+
+  try {
+    showToast('Generando imagen de alta resolución...');
+
+    const canvas = await window.html2canvas(element, {
+      scale: 2, // Calidad 2x retina para texto y bordes nítidos
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false,
+      onclone: (clonedDoc) => {
+        // Ocultar botones de captura en la imagen clonada
+        const snapBtns = clonedDoc.querySelectorAll('.btn-card-snap');
+        snapBtns.forEach(btn => btn.style.display = 'none');
+      }
+    });
+
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast(`Descargado: ${filename}`);
+  } catch (err) {
+    console.error('Error generando imagen:', err);
+    alert('Hubo un inconveniente al generar la imagen.');
+  }
+}
 
 // Formateadores
 function formatCurrency(val) {
@@ -590,10 +647,26 @@ function initListeners() {
     applyPreset(e.target.value);
   });
 
-  // Imprimir
-  dom.btnPrintReport.addEventListener('click', () => {
-    window.print();
-  });
+  // Exportar Imagen de Resolución Completa (Pasos 2 al 5)
+  if (dom.btnExportResolutionImg) {
+    dom.btnExportResolutionImg.addEventListener('click', () => {
+      exportElementToImage(dom.exportResolutionZone, 'TarifIA_Resolucion_Pasos_2_al_5.png');
+    });
+  }
+
+  // Exportar solo Matrices (Pasos 2 & 3)
+  if (dom.btnSnapMatrices) {
+    dom.btnSnapMatrices.addEventListener('click', () => {
+      exportElementToImage(dom.cardStep23, 'TarifIA_Matrices_Regulatorias_Pasos_2_3.png');
+    });
+  }
+
+  // Exportar solo Fórmulas (Pasos 4 & 5)
+  if (dom.btnSnapFormulas) {
+    dom.btnSnapFormulas.addEventListener('click', () => {
+      exportElementToImage(dom.cardStep45, 'TarifIA_Desarrollo_Algebraico_Pasos_4_5.png');
+    });
+  }
 }
 
 // Inicio
