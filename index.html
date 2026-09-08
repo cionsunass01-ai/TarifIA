@@ -128,97 +128,98 @@
           <div class="step-indicator">1</div>
           <div>
             <h2 class="card-title">Datos comerciales de facturación</h2>
-            <p class="card-subtitle">Cálculo del importe base facturado por servicio de saneamiento</p>
+            <p class="card-subtitle">Ingreso de volumen y determinación de importes base de saneamiento</p>
           </div>
         </div>
 
         <div class="fields-stack">
-          <!-- Input A -->
+          <!-- Input A (Dato principal ingresado por el usuario) -->
           <div class="field-item">
             <label for="inputA" class="field-label">
               <span class="token-letter">A</span>
-              <span>Volumen de agua potable consumido</span>
+              <span>Volumen de agua potable consumido en el periodo</span>
             </label>
             <div class="input-group">
-              <input type="number" id="inputA" step="0.01" min="0" value="296" />
+              <input type="number" id="inputA" step="0.01" min="0" value="150" />
               <span class="unit-tag">m³/mes</span>
             </div>
           </div>
 
-          <!-- Desglose de Cálculo Escalonado (Estructura y Resolución) -->
-          <div class="tariff-calculation-breakdown" id="tariffCalcBreakdown">
-            <div class="calc-breakdown-section">
-              <div class="calc-breakdown-title">
-                <i class="ph-bold ph-tree-structure"></i>
-                <span>Estructura tarifaria del pliego:</span>
+          <!-- Cuadro Resumen Técnico: Desglose por Bloques de Consumo -->
+          <div class="commercial-breakdown-card" id="commercialBreakdownCard">
+            <div class="breakdown-card-head">
+              <div class="breakdown-head-left">
+                <i class="ph-bold ph-receipt"></i>
+                <span class="breakdown-card-title">Desglose tarifario por tramos de consumo</span>
               </div>
-              <ul class="calc-breakdown-list" id="calcEstructuraList">
-                <!-- Generado por JS -->
-              </ul>
+              <span class="breakdown-badge" id="breakdownCategoryBadge">Industrial</span>
             </div>
 
-            <div class="calc-breakdown-section">
-              <div class="calc-breakdown-title">
-                <i class="ph-bold ph-calculator"></i>
-                <span>Resolución:</span>
+            <div class="breakdown-table-wrapper">
+              <table class="breakdown-table">
+                <thead>
+                  <tr>
+                    <th>Bloque / Tramo</th>
+                    <th>Consumo</th>
+                    <th>Tarifa Alcantarillado</th>
+                    <th>Importe Alcantarillado</th>
+                    <th>Tarifa Agua</th>
+                    <th>Importe Agua</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyCommercialBreakdown">
+                  <!-- Generado dinámicamente por JS -->
+                </tbody>
+                <tfoot id="tfootCommercialBreakdown">
+                  <!-- Totales calculados dinámicamente -->
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Parámetros Oficiales Resultantes para Liquidación VMA (B y C) -->
+          <div class="commercial-results-grid">
+            
+            <!-- Result B: Tarifa Unitaria Ponderada -->
+            <div class="result-metric-card">
+              <div class="result-metric-head">
+                <label for="inputB" class="result-label">
+                  <span class="token-letter">B</span>
+                  <span>Tarifa media alcantarillado</span>
+                </label>
+                <button type="button" id="btnToggleLockB" class="btn-lock active" title="Cálculo automático desde el pliego SUNASS. Clic para editar manualmente.">
+                  <i class="ph-bold ph-lock-key"></i>
+                </button>
               </div>
-              <ol class="calc-resolucion-list" id="calcResolucionList">
-                <!-- Generado por JS -->
-              </ol>
+              <div class="input-group">
+                <span class="currency-prefix">S/</span>
+                <input type="number" id="inputB" step="0.0001" min="0" value="4.4577" />
+                <span class="unit-tag">por m³</span>
+              </div>
+              <span class="metric-help-text" id="bSourceHint">Tarifa ponderada por m³ (C / A)</span>
             </div>
-          </div>
 
-          <!-- Input B (Auto from Catalog or Manual Override) -->
-          <div class="field-item">
-            <div class="derived-header">
-              <label for="inputB" class="field-label">
-                <span class="token-letter">B</span>
-                <span>Tarifa servicio de saneamiento (alcantarillado)</span>
-              </label>
-              <button type="button" id="btnToggleLockB" class="btn-lock active" title="Tarifa vinculada automáticamente al pliego SUNASS. Clic para editar manualmente.">
-                <i class="ph-bold ph-lock-key"></i>
-              </button>
+            <!-- Result C: Importe Base Saneamiento (A x B) -->
+            <div class="result-metric-card result-metric-highlight">
+              <div class="result-metric-head">
+                <label for="inputC" class="result-label">
+                  <span class="token-letter token-derived">C</span>
+                  <span>Importe facturado base saneamiento</span>
+                </label>
+                <div class="result-head-actions">
+                  <span class="tax-tag">Sin IGV</span>
+                  <button type="button" id="btnToggleLockC" class="btn-lock active" title="Cálculo automático activado. Clic para editar manualmente.">
+                    <i class="ph-bold ph-lock-key"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="currency-prefix">S/</span>
+                <input type="number" id="inputC" step="0.01" min="0" value="668.65" />
+              </div>
+              <span class="metric-help-text">Base imponible de saneamiento para recargo VMA</span>
             </div>
-            <div class="input-group">
-              <span class="currency-prefix">S/</span>
-              <input type="number" id="inputB" step="0.0001" min="0" value="4.21" />
-              <span class="unit-tag">por m³</span>
-            </div>
-            <span class="dynamic-help-text" id="bSourceHint">Obtenida automáticamente del pliego SUNASS</span>
-          </div>
 
-          <!-- Tarifa de Agua Potable -->
-          <div class="field-item">
-            <div class="derived-header">
-              <label for="inputTarifaAgua" class="field-label">
-                <span class="token-letter token-agua">Agua</span>
-                <span>Tarifa servicio de saneamiento (agua)</span>
-              </label>
-            </div>
-            <div class="input-group">
-              <span class="currency-prefix">S/</span>
-              <input type="number" id="inputTarifaAgua" step="0.0001" min="0" value="8.82" readonly />
-              <span class="unit-tag">por m³</span>
-            </div>
-            <span class="dynamic-help-text" id="aguaSourceHint">Total facturado agua potable: S/ 2,610.72</span>
-          </div>
-
-          <!-- Input C (A x B) -->
-          <div class="field-item field-derived">
-            <div class="derived-header">
-              <label for="inputC" class="field-label">
-                <span class="token-letter token-derived">C</span>
-                <span>Importe facturado base saneamiento (A × B)</span>
-              </label>
-              <span class="tax-tag">Sin IGV</span>
-            </div>
-            <div class="input-group">
-              <span class="currency-prefix">S/</span>
-              <input type="number" id="inputC" step="0.01" min="0" value="1246.16" />
-              <button type="button" id="btnToggleLockC" class="btn-lock active" title="Cálculo automático C = A × B activado.">
-                <i class="ph-bold ph-lock-key"></i>
-              </button>
-            </div>
           </div>
         </div>
       </div>

@@ -369,95 +369,165 @@ body {
   font-weight: 700;
 }
 
-/* Tariff Calculation Breakdown Box */
-.tariff-calculation-breakdown {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
+/* Commercial Tiered Breakdown Table & Result Metrics */
+.commercial-breakdown-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
   border-radius: var(--radius-sm);
-  padding: 0.85rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
-.calc-breakdown-section {
+.breakdown-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.breakdown-head-left {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.breakdown-head-left i {
+  color: var(--hydro-cyan);
+  font-size: 0.95rem;
+}
+
+.breakdown-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--slate-navy);
+}
+
+.breakdown-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.breakdown-table-wrapper {
+  overflow-x: auto;
+}
+
+.breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+  text-align: left;
+}
+
+.breakdown-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 6px 10px;
+  border-bottom: 1.5px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.breakdown-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.breakdown-table th:nth-child(n+2),
+.breakdown-table td:nth-child(n+2) {
+  text-align: right;
+}
+
+.breakdown-table tr.row-inactive td {
+  color: #94a3b8;
+  background: #fafafa;
+}
+
+.breakdown-table tfoot td {
+  background: #f1f5f9;
+  font-weight: 800;
+  color: var(--slate-navy);
+  border-top: 2px solid #cbd5e1;
+  padding: 8px 10px;
+}
+
+.td-highlight-alcanta {
+  color: #0369a1 !important;
+  font-weight: 700;
+}
+
+.td-highlight-agua {
+  color: #0284c7 !important;
+  font-weight: 700;
+}
+
+/* Results Grid (B & C) */
+.commercial-results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 650px) {
+  .commercial-results-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.result-metric-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.9rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.calc-breakdown-title {
+.result-metric-highlight {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+  box-shadow: 0 2px 5px rgba(2, 132, 199, 0.06);
+}
+
+.result-metric-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.result-head-actions {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+.result-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.79rem;
   font-weight: 700;
   color: var(--slate-navy);
-  font-size: 0.78rem;
 }
 
-.calc-breakdown-title i {
-  color: var(--hydro-cyan);
-  font-size: 0.95rem;
-}
-
-.calc-breakdown-list, .calc-resolucion-list {
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.calc-breakdown-list {
-  list-style: none;
-}
-
-.calc-breakdown-list li {
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  color: #334155;
-  background: #ffffff;
-  padding: 0.35rem 0.65rem;
-  border-radius: 4px;
-  border: 1px solid #e2e8f0;
-  line-height: 1.35;
-}
-
-.calc-resolucion-list {
-  list-style: none;
-  counter-reset: resolucion-counter;
-}
-
-.calc-resolucion-list li {
-  counter-increment: resolucion-counter;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--slate-navy);
-  background: #ffffff;
-  padding: 0.38rem 0.65rem;
-  border-radius: 4px;
-  border: 1px solid #e2e8f0;
-  line-height: 1.35;
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-}
-
-.calc-resolucion-list li::before {
-  content: counter(resolucion-counter) ".";
-  font-weight: 800;
-  color: var(--hydro-cyan);
-  min-width: 1rem;
-}
-
-.token-agua {
-  background: #e0f2fe;
+.metric-help-text {
+  font-size: 0.71rem;
   color: #0369a1;
-  font-size: 0.65rem;
-  font-weight: 800;
-  width: auto;
-  padding: 0 5px;
+  font-weight: 500;
 }
 
 /* Fields Stack (Section 1) */
