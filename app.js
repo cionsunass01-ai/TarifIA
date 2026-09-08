@@ -446,15 +446,12 @@ function calculateVMA() {
     if (record && record.isEscalable && isAutoTariffB) {
       valC = record.totalAlcanta;
       dom.inputC.value = valC.toFixed(2);
-      dom.cCalcFormulaHint.textContent = `${record.cCalcBreakdown} = S/ ${formatCurrency(valC)}`;
     } else {
       valC = +(valA * valB).toFixed(2);
       dom.inputC.value = valC.toFixed(2);
-      dom.cCalcFormulaHint.textContent = `${formatNumber(valA)} m³ × S/ ${formatNumber(valB, 4)} por m³`;
     }
   } else {
     valC = parseFloat(dom.inputC.value) || 0;
-    dom.cCalcFormulaHint.textContent = `Importe personalizado manual`;
   }
 
   const params = {
