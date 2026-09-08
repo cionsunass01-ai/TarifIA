@@ -25,7 +25,7 @@
   <!-- Toast Notification -->
   <div class="toast-notification" id="toastNotification">
     <i class="ph-bold ph-check-circle"></i>
-    <span id="toastMessage">Imagen generada y descargada con éxito</span>
+    <span id="toastMessage">Cuadro descargado con éxito</span>
   </div>
 
   <!-- Header Bar -->
@@ -46,16 +46,17 @@
           <label for="selectPreset" class="sr-only">Seleccionar caso de estudio</label>
           <select id="selectPreset" class="select-field" title="Cargar caso de estudio predeterminado">
             <option value="salud" selected>Caso: Centro de Salud (Ejemplo Diapositiva)</option>
+            <option value="resolucion">Caso: Reclamo Resuelto (Resolución TRASS N° 01666-2026)</option>
             <option value="restaurante">Caso: Restaurante / Pollería (Trujillo · SEDALIB)</option>
             <option value="textil">Caso: Industria Textil (Arequipa · SEDAPAR)</option>
             <option value="cumple">Caso: Cumplimiento total (Sin exceso)</option>
           </select>
         </div>
         
-        <!-- Primary Action: Export Resolution as Image (Pasos 2 al 5) -->
-        <button type="button" class="btn btn-export-primary" id="btnExportResolutionImg" title="Descargar como imagen PNG los Pasos 2, 3, 4 y 5">
-          <i class="ph-bold ph-image"></i>
-          <span>Descargar Imagen (Pasos 2 al 5)</span>
+        <!-- Primary Action: Descargar Cuadro -->
+        <button type="button" class="btn btn-export-primary" id="btnExportResolutionImg" title="Descargar cuadro oficial para resolución en formato PNG">
+          <i class="ph-bold ph-download-simple"></i>
+          <span>Descargar Cuadro</span>
         </button>
       </div>
     </div>
@@ -369,7 +370,7 @@
           </div>
 
           <p class="bill-annotation" id="billAnnotation">
-            Liquidación correspondiente a 4 parámetros que superan los Valores Máximos Admisibles.
+            Liquidación correspondiente a los parámetros que superan los Valores Máximos Admisibles.
           </p>
         </div>
 
@@ -405,10 +406,10 @@
         </div>
       </div>
 
-      <!-- Technical Workflow Container (Target for PNG Export) -->
+      <!-- Technical Workflow Container -->
       <div class="technical-workflow">
         
-        <!-- Step 1 Card -->
+        <!-- Step 1 Card: Caracterización -->
         <article class="workflow-card">
           <header class="workflow-header">
             <div class="step-circle">1</div>
@@ -439,185 +440,159 @@
           </div>
         </article>
 
-        <!-- Exportable Resolution Group: Steps 2, 3, 4 & 5 -->
-        <div class="exportable-resolution-zone" id="exportResolutionZone">
-          
-          <!-- Steps 2 & 3 Card: Matrices -->
-          <article class="workflow-card" id="cardStep23">
-            <header class="workflow-header">
-              <div class="step-circle">2 & 3</div>
-              <div class="workflow-header-info">
-                <h3 class="workflow-title">Matrices regulatorias y asignación de factores (Fi)</h3>
-                <p class="workflow-desc">Identificación de rango y factor de ajuste individual normativo SUNASS</p>
-              </div>
-              <button type="button" class="btn-card-snap" id="btnSnapMatrices" title="Descargar solo esta sección en imagen PNG">
-                <i class="ph-bold ph-camera"></i>
-                <span>Descargar PNG</span>
-              </button>
-            </header>
-
-            <div class="workflow-body">
-              <div class="matrices-split">
-                
-                <!-- Matrix 1: Rangos -->
-                <div class="matrix-card" id="boxMatrixRanges">
-                  <div class="matrix-card-title">
-                    <i class="ph-bold ph-chart-bar"></i>
-                    <span>Rangos de concentración (mg/L)</span>
-                  </div>
-                  <div class="table-container">
-                    <table class="tech-table matrix-view" id="matrixRanges">
-                      <thead>
-                        <tr>
-                          <th>Rango</th>
-                          <th>DBO₅</th>
-                          <th>DQO</th>
-                          <th>SST</th>
-                          <th>AyG</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr class="vma-row">
-                          <td><strong>VMA</strong></td>
-                          <td>500</td>
-                          <td>1000</td>
-                          <td>500</td>
-                          <td>100</td>
-                        </tr>
-                        <tr data-rango="1" id="mRange-1">
-                          <td>Rango 1</td>
-                          <td data-param="dbo5">500.1 – 600</td>
-                          <td data-param="dqo">1000.1 – 1200</td>
-                          <td data-param="sst">500.1 – 600</td>
-                          <td data-param="ayg">100.1 – 200</td>
-                        </tr>
-                        <tr data-rango="2" id="mRange-2">
-                          <td>Rango 2</td>
-                          <td data-param="dbo5">600.1 – 1000</td>
-                          <td data-param="dqo">1200.1 – 2500</td>
-                          <td data-param="sst">600.1 – 1000</td>
-                          <td data-param="ayg">200.1 – 350</td>
-                        </tr>
-                        <tr data-rango="3" id="mRange-3">
-                          <td>Rango 3</td>
-                          <td data-param="dbo5">1000.1 – 2500</td>
-                          <td data-param="dqo">2500.1 – 4500</td>
-                          <td data-param="sst">1000.1 – 3500</td>
-                          <td data-param="ayg">350.1 – 600</td>
-                        </tr>
-                        <tr data-rango="4" id="mRange-4">
-                          <td>Rango 4</td>
-                          <td data-param="dbo5">&gt; 2500</td>
-                          <td data-param="dqo">&gt; 4500</td>
-                          <td data-param="sst">&gt; 3500</td>
-                          <td data-param="ayg">&gt; 600</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <!-- Matrix 2: Factores Fi -->
-                <div class="matrix-card" id="boxMatrixFactors">
-                  <div class="matrix-card-title">
-                    <i class="ph-bold ph-percent"></i>
-                    <span>Factores individuales normativos (Fi)</span>
-                  </div>
-                  <div class="table-container">
-                    <table class="tech-table matrix-view" id="matrixFactors">
-                      <thead>
-                        <tr>
-                          <th>Rango</th>
-                          <th>F DBO₅</th>
-                          <th>F DQO</th>
-                          <th>F SST</th>
-                          <th>F AyG</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr data-rango="1" id="mFactor-1">
-                          <td>Rango 1</td>
-                          <td data-param="dbo5">60%</td>
-                          <td data-param="dqo">84%</td>
-                          <td data-param="sst">48%</td>
-                          <td data-param="ayg">48%</td>
-                        </tr>
-                        <tr data-rango="2" id="mFactor-2">
-                          <td>Rango 2</td>
-                          <td data-param="dbo5">155%</td>
-                          <td data-param="dqo">217%</td>
-                          <td data-param="sst">124%</td>
-                          <td data-param="ayg">124%</td>
-                        </tr>
-                        <tr data-rango="3" id="mFactor-3">
-                          <td>Rango 3</td>
-                          <td data-param="dbo5">350%</td>
-                          <td data-param="dqo">490%</td>
-                          <td data-param="sst">280%</td>
-                          <td data-param="ayg">280%</td>
-                        </tr>
-                        <tr data-rango="4" id="mFactor-4">
-                          <td>Rango 4</td>
-                          <td data-param="dbo5">500%</td>
-                          <td data-param="dqo">700%</td>
-                          <td data-param="sst">400%</td>
-                          <td data-param="ayg">400%</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-              </div>
+        <!-- OFFICIAL TRASS RESOLUTION GRAPHIC BLOCK (Exact format of Resolution Page 5, Numeral 3.2.3) -->
+        <article class="workflow-card resolution-card-wrapper">
+          <header class="workflow-header">
+            <div class="step-circle">2, 3 & 4</div>
+            <div class="workflow-header-info">
+              <h3 class="workflow-title">Cuadro para Resolución TRASS / SUNASS (Numeral 3.2.3)</h3>
+              <p class="workflow-desc">Gráfico oficial formal con las matrices de rangos, factores individuales y desarrollo de F</p>
             </div>
-          </article>
+            <button type="button" class="btn btn-export-primary btn-sm" id="btnExportCuadroResolucion" title="Descargar este cuadro en imagen PNG">
+              <i class="ph-bold ph-download-simple"></i>
+              <span>Descargar Cuadro</span>
+            </button>
+          </header>
 
-          <!-- Steps 4 & 5 Card: Formulas -->
-          <article class="workflow-card" id="cardStep45">
-            <header class="workflow-header">
-              <div class="step-circle">4 & 5</div>
-              <div class="workflow-header-info">
-                <h3 class="workflow-title">Desarrollo algebraico del cálculo final</h3>
-                <p class="workflow-desc">Suma de factores de ajuste y liquidación por volumen facturado</p>
-              </div>
-              <button type="button" class="btn-card-snap" id="btnSnapFormulas" title="Descargar solo esta sección en imagen PNG">
-                <i class="ph-bold ph-camera"></i>
-                <span>Descargar PNG</span>
-              </button>
-            </header>
-
-            <div class="workflow-body">
-              <div class="algebraic-grid">
+          <div class="workflow-body">
+            <!-- Exact Document Container to capture -->
+            <div class="resolution-document-canvas" id="resolutionCanvasBlock">
+              
+              <div class="reso-matrices-row">
                 
-                <!-- Step 4 Box -->
-                <div class="math-box">
-                  <span class="math-label">Paso 4: Factor de ajuste total (F)</span>
-                  <div class="math-formula-code" id="boxFormulaF">
-                    F = 350_{DBO5} + 490_{DQO} + 280_{SST} + 280_{AyG}
-                  </div>
-                  <div class="math-outcome">
-                    <span>Factor consolidado:</span>
-                    <strong class="math-result-tag" id="boxResultF">F = 1400%</strong>
-                  </div>
+                <!-- Table 1: Rangos de Concentración -->
+                <div class="reso-table-col">
+                  <table class="reso-table" id="resoTableRangos">
+                    <thead>
+                      <tr>
+                        <th class="th-rango">RANGO</th>
+                        <th>DBO₅</th>
+                        <th>DQO</th>
+                        <th>S.S.T</th>
+                        <th>A y G</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="vma-row">
+                        <td><strong>VMA (mg/L)</strong></td>
+                        <td>500</td>
+                        <td>1000</td>
+                        <td>500</td>
+                        <td>100</td>
+                      </tr>
+                      <tr data-rango="1" id="resoRango-1">
+                        <td>Rango 1</td>
+                        <td data-param="dbo5">500,1 – 600</td>
+                        <td data-param="dqo">1000,1 – 1200</td>
+                        <td data-param="sst">500,1 – 600</td>
+                        <td data-param="ayg">100,1 – 200</td>
+                      </tr>
+                      <tr data-rango="2" id="resoRango-2">
+                        <td>Rango 2</td>
+                        <td data-param="dbo5">600,1 – 1000</td>
+                        <td data-param="dqo">1200,1 – 2500</td>
+                        <td data-param="sst">600,1 – 1000</td>
+                        <td data-param="ayg">200,1 – 350</td>
+                      </tr>
+                      <tr data-rango="3" id="resoRango-3">
+                        <td>Rango 3</td>
+                        <td data-param="dbo5">1000,1 – 2500</td>
+                        <td data-param="dqo">2500,1 – 4500</td>
+                        <td data-param="sst">1000,1 – 3500</td>
+                        <td data-param="ayg">350,1 – 600</td>
+                      </tr>
+                      <tr data-rango="4" id="resoRango-4">
+                        <td>Rango 4</td>
+                        <td data-param="dbo5">Mayor a 2500</td>
+                        <td data-param="dqo">Mayor a 4500</td>
+                        <td data-param="sst">Mayor a 3500</td>
+                        <td data-param="ayg">Mayor a 600</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                <!-- Step 5 Box -->
-                <div class="math-box math-box-primary">
-                  <span class="math-label">Paso 5: Pago adicional (PA = C × F)</span>
-                  <div class="math-formula-code" id="boxFormulaPA">
-                    PA = S/ 1,246.16 × 1400%
-                  </div>
-                  <div class="math-outcome">
-                    <span>Liquidación PA:</span>
-                    <strong class="math-result-tag result-accent" id="boxResultPA">PA = S/ 17,446.24</strong>
-                  </div>
+                <!-- Table 2: Factores Individuales Fi -->
+                <div class="reso-table-col">
+                  <table class="reso-table" id="resoTableFactores">
+                    <thead>
+                      <tr>
+                        <th rowspan="2" class="th-rango">RANGOS DE CONCENTRACIÓN</th>
+                        <th colspan="4" class="th-group">FACTORES INDIVIDUALES</th>
+                      </tr>
+                      <tr>
+                        <th>FDBO₅</th>
+                        <th>FDQO</th>
+                        <th>FS.S.T</th>
+                        <th>FAyG</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr data-rango="1" id="resoFactor-1">
+                        <td>Rango 1</td>
+                        <td data-param="dbo5">60%</td>
+                        <td data-param="dqo">84%</td>
+                        <td data-param="sst">48%</td>
+                        <td data-param="ayg">48%</td>
+                      </tr>
+                      <tr data-rango="2" id="resoFactor-2">
+                        <td>Rango 2</td>
+                        <td data-param="dbo5">155%</td>
+                        <td data-param="dqo">217%</td>
+                        <td data-param="sst">124%</td>
+                        <td data-param="ayg">124%</td>
+                      </tr>
+                      <tr data-rango="3" id="resoFactor-3">
+                        <td>Rango 3</td>
+                        <td data-param="dbo5">350%</td>
+                        <td data-param="dqo">490%</td>
+                        <td data-param="sst">280%</td>
+                        <td data-param="ayg">280%</td>
+                      </tr>
+                      <tr data-rango="4" id="resoFactor-4">
+                        <td>Rango 4</td>
+                        <td data-param="dbo5">500%</td>
+                        <td data-param="dqo">700%</td>
+                        <td data-param="sst">400%</td>
+                        <td data-param="ayg">400%</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
               </div>
-            </div>
-          </article>
 
-        </div>
+              <!-- Formal Formula Box (Numeral 3.2.3 of TRASS Resolution) -->
+              <div class="reso-formula-box-container">
+                <div class="reso-formula-box" id="resoFormulaBox">
+                  <div class="formula-line-1">F = DBO + DQO + SST + AyG</div>
+                  <div class="formula-line-2" id="resoFormulaExpanded">F = 350% + 490% + 280% + 280%</div>
+                  <div class="formula-line-3" id="resoFormulaTotal">F = 1400%</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+        <!-- Step 5: Liquidación PA -->
+        <article class="workflow-card">
+          <header class="workflow-header">
+            <div class="step-circle">5</div>
+            <div class="workflow-header-info">
+              <h3 class="workflow-title">Determinación del Pago Adicional (PA = Importe facturado × F)</h3>
+              <p class="workflow-desc">Liquidación monetaria del numeral 3.2.4 de la resolución</p>
+            </div>
+          </header>
+          <div class="workflow-body">
+            <div class="reso-pa-box" id="resoPABox">
+              <div class="pa-line-title">PA = Importe facturado saneamiento × F</div>
+              <div class="pa-line-calc" id="resoPAExpanded">PA = S/ 1,246.16 × 1400%</div>
+              <div class="pa-line-total" id="resoPATotal">PA = S/ 17,446.24</div>
+            </div>
+          </div>
+        </article>
+
       </div>
     </section>
   </main>

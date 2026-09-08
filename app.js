@@ -1,6 +1,7 @@
 /**
  * Calculadora VMA SUNASS - Metodología de Liquidación de Pago Adicional
  * Con integración del Pliego Tarifario Oficial SUNASS (TARIFA.xlsx)
+ * y Generador de Cuadros Oficiales para Resoluciones del Tribunal Administrativo (TRASS)
  */
 
 // Definición normativa de parámetros, VMAs y rangos normativos SUNASS
@@ -67,11 +68,22 @@ const PRESETS = {
     periodo: '2025-12',
     categoria: 'Comercial y otros',
     a: 296,
-    b: 4.21,
     dbo5: 1100,
     dqo: 2635,
     sst: 2726,
     ayg: 387
+  },
+  resolucion: {
+    ep: 'SEDAPAL S.A.',
+    localidad: 'COMAS',
+    periodo: '2025-10',
+    categoria: 'Comercial y otros',
+    a: 17,
+    b: 3.486,
+    dbo5: 629.5,
+    dqo: 1399,
+    sst: 211,
+    ayg: 195
   },
   restaurante: {
     ep: 'SEDALIB S.A.',
@@ -115,7 +127,9 @@ let isAutoCalcC = true;
 // Referencias DOM
 const dom = {
   selectPreset: document.getElementById('selectPreset'),
-  btnPrintReport: document.getElementById('btnPrintReport'),
+  btnExportResolutionImg: document.getElementById('btnExportResolutionImg'),
+  btnExportCuadroResolucion: document.getElementById('btnExportCuadroResolucion'),
+  resolutionCanvasBlock: document.getElementById('resolutionCanvasBlock'),
 
   // Selectores de Catálogo
   selectEP: document.getElementById('selectEP'),
@@ -157,25 +171,21 @@ const dom = {
   slipIGV: document.getElementById('slipIGV'),
   slipTotalWithIGV: document.getElementById('slipTotalWithIGV'),
 
-  // Botones de Exportación de Imagen
-  btnExportResolutionImg: document.getElementById('btnExportResolutionImg'),
-  btnSnapMatrices: document.getElementById('btnSnapMatrices'),
-  btnSnapFormulas: document.getElementById('btnSnapFormulas'),
-  exportResolutionZone: document.getElementById('exportResolutionZone'),
-  cardStep23: document.getElementById('cardStep23'),
-  cardStep45: document.getElementById('cardStep45'),
-  toastNotification: document.getElementById('toastNotification'),
-  toastMessage: document.getElementById('toastMessage'),
-
-  // Tablas y Fórmulas
+  // Step 1
   tbodyStep1Rows: document.getElementById('tbodyStep1Rows'),
-  boxFormulaF: document.getElementById('boxFormulaF'),
-  boxResultF: document.getElementById('boxResultF'),
-  boxFormulaPA: document.getElementById('boxFormulaPA'),
-  boxResultPA: document.getElementById('boxResultPA')
+
+  // Resolución TRASS Fórmulas (Numeral 3.2.3 y 3.2.4)
+  resoFormulaExpanded: document.getElementById('resoFormulaExpanded'),
+  resoFormulaTotal: document.getElementById('resoFormulaTotal'),
+  resoPAExpanded: document.getElementById('resoPAExpanded'),
+  resoPATotal: document.getElementById('resoPATotal'),
+
+  // Toast
+  toastNotification: document.getElementById('toastNotification'),
+  toastMessage: document.getElementById('toastMessage')
 };
 
-// Toast de retroalimentación
+// Toast
 function showToast(msg) {
   if (!dom.toastNotification || !dom.toastMessage) return;
   dom.toastMessage.textContent = msg;
@@ -185,40 +195,36 @@ function showToast(msg) {
   }, 3500);
 }
 
-// Exportar elemento DOM como imagen PNG de alta resolución
-async function exportElementToImage(element, filename) {
-  if (!element) return;
+// Exportar Bloque Oficial de Resolución en PNG
+async function exportResolutionCuadro() {
+  const target = dom.resolutionCanvasBlock;
+  if (!target) return;
   if (typeof window.html2canvas !== 'function') {
-    alert('La función de captura de imagen está cargando...');
+    alert('La herramienta de captura está inicializando...');
     return;
   }
 
   try {
-    showToast('Generando imagen de alta resolución...');
+    showToast('Generando cuadro de resolución...');
 
-    const canvas = await window.html2canvas(element, {
-      scale: 2, // Calidad 2x retina para texto y bordes nítidos
+    const canvas = await window.html2canvas(target, {
+      scale: 2.5, // Ultra alta resolución para documentos oficiales de Word/PDF
       backgroundColor: '#ffffff',
       useCORS: true,
-      logging: false,
-      onclone: (clonedDoc) => {
-        // Ocultar botones de captura en la imagen clonada
-        const snapBtns = clonedDoc.querySelectorAll('.btn-card-snap');
-        snapBtns.forEach(btn => btn.style.display = 'none');
-      }
+      logging: false
     });
 
     const link = document.createElement('a');
-    link.download = filename;
+    link.download = `Cuadro_Resolucion_VMA_${dom.selectEP.value.split(' ')[0]}_${dom.selectLocalidad.value}.png`;
     link.href = canvas.toDataURL('image/png');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    showToast(`Descargado: ${filename}`);
+    showToast('Cuadro descargado con éxito');
   } catch (err) {
-    console.error('Error generando imagen:', err);
-    alert('Hubo un inconveniente al generar la imagen.');
+    console.error('Error al generar cuadro:', err);
+    alert('Ocurrió un error al generar la imagen.');
   }
 }
 
@@ -344,7 +350,7 @@ function evaluateParameter(paramKey, rawValue) {
     }
   }
 
-  // Aguja del espectro visual (25% en VMA, 25% a 100% en exceso)
+  // Aguja del espectro visual
   let gaugePercent = 0;
   if (value <= cfg.vma) {
     gaugePercent = Math.min(25, (value / cfg.vma) * 25);
@@ -468,38 +474,45 @@ function renderStep1Table(params) {
 }
 
 function highlightMatrices(params) {
-  document.querySelectorAll('.matrix-view td.cell-active').forEach(td => {
+  // Limpiar estados activos
+  document.querySelectorAll('.reso-table td.cell-active').forEach(td => {
     td.classList.remove('cell-active');
   });
 
+  // Aplicar a las tablas oficiales de resolución
   Object.keys(params).forEach(key => {
     const p = params[key];
     if (p.rango) {
-      const cellRange = document.querySelector(`#mRange-${p.rango} td[data-param="${key}"]`);
+      // Tabla de Rangos
+      const cellRange = document.querySelector(`#resoRango-${p.rango} td[data-param="${key}"]`);
       if (cellRange) cellRange.classList.add('cell-active');
 
-      const cellFactor = document.querySelector(`#mFactor-${p.rango} td[data-param="${key}"]`);
+      // Tabla de Factores
+      const cellFactor = document.querySelector(`#resoFactor-${p.rango} td[data-param="${key}"]`);
       if (cellFactor) cellFactor.classList.add('cell-active');
     }
   });
 }
 
 function updateFormulasDisplay(valC, params, factorTotal, montoPA) {
-  const parts = [];
-  if (params.dbo5.factor > 0) parts.push(`${params.dbo5.factor}_{DBO5}`);
-  if (params.dqo.factor > 0) parts.push(`${params.dqo.factor}_{DQO}`);
-  if (params.sst.factor > 0) parts.push(`${params.sst.factor}_{SST}`);
-  if (params.ayg.factor > 0) parts.push(`${params.ayg.factor}_{AyG}`);
-
-  if (parts.length === 0) {
-    dom.boxFormulaF.textContent = 'F = 0% (Ningún parámetro supera los VMA)';
-  } else {
-    dom.boxFormulaF.textContent = `F = ${parts.join(' + ')}`;
+  // Formato oficial de resolución TRASS (F = DBO + DQO + SST + AyG)
+  // Muestra 0% para parámetros que no superen VMA (conforme a resoluciones TRASS)
+  const line2Text = `F = ${params.dbo5.factor}% + ${params.dqo.factor}% + ${params.sst.factor}% + ${params.ayg.factor}%`;
+  
+  if (dom.resoFormulaExpanded) {
+    dom.resoFormulaExpanded.textContent = line2Text;
   }
-  dom.boxResultF.textContent = `F = ${factorTotal}%`;
+  if (dom.resoFormulaTotal) {
+    dom.resoFormulaTotal.textContent = `F = ${factorTotal}%`;
+  }
 
-  dom.boxFormulaPA.textContent = `PA = S/ ${formatCurrency(valC)} × ${factorTotal}%`;
-  dom.boxResultPA.textContent = `PA = S/ ${formatCurrency(montoPA)}`;
+  // Formato de liquidación PA
+  if (dom.resoPAExpanded) {
+    dom.resoPAExpanded.textContent = `PA = S/ ${formatCurrency(valC)} × ${factorTotal}%`;
+  }
+  if (dom.resoPATotal) {
+    dom.resoPATotal.textContent = `PA = S/ ${formatCurrency(montoPA)}`;
+  }
 }
 
 function updateHeroBill(valC, factorTotal, montoPA, subtotalSinIGV, montoIGV, totalConIGV, params) {
@@ -577,14 +590,19 @@ function applyPreset(presetKey) {
   populateSelectors(p);
 
   dom.inputA.value = p.a;
-  if (p.b !== undefined) dom.inputB.value = p.b;
+  if (p.b !== undefined) {
+    dom.inputB.value = p.b;
+    isAutoTariffB = false;
+    dom.btnToggleLockB.classList.remove('active');
+  } else {
+    isAutoTariffB = true;
+    dom.btnToggleLockB.classList.add('active');
+  }
+
   dom.inputDBO5.value = p.dbo5;
   dom.inputDQO.value = p.dqo;
   dom.inputSST.value = p.sst;
   dom.inputAyG.value = p.ayg;
-
-  isAutoTariffB = true;
-  dom.btnToggleLockB.classList.add('active');
 
   isAutoCalcC = true;
   dom.btnToggleLockC.classList.add('active');
@@ -647,25 +665,14 @@ function initListeners() {
     applyPreset(e.target.value);
   });
 
-  // Exportar Imagen de Resolución Completa (Pasos 2 al 5)
+  // Botón principal de Descargar Cuadro
   if (dom.btnExportResolutionImg) {
-    dom.btnExportResolutionImg.addEventListener('click', () => {
-      exportElementToImage(dom.exportResolutionZone, 'TarifIA_Resolucion_Pasos_2_al_5.png');
-    });
+    dom.btnExportResolutionImg.addEventListener('click', exportResolutionCuadro);
   }
 
-  // Exportar solo Matrices (Pasos 2 & 3)
-  if (dom.btnSnapMatrices) {
-    dom.btnSnapMatrices.addEventListener('click', () => {
-      exportElementToImage(dom.cardStep23, 'TarifIA_Matrices_Regulatorias_Pasos_2_3.png');
-    });
-  }
-
-  // Exportar solo Fórmulas (Pasos 4 & 5)
-  if (dom.btnSnapFormulas) {
-    dom.btnSnapFormulas.addEventListener('click', () => {
-      exportElementToImage(dom.cardStep45, 'TarifIA_Desarrollo_Algebraico_Pasos_4_5.png');
-    });
+  // Botón interno en la tarjeta
+  if (dom.btnExportCuadroResolucion) {
+    dom.btnExportCuadroResolucion.addEventListener('click', exportResolutionCuadro);
   }
 }
 

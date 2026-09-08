@@ -32,11 +32,6 @@
   --border-subtle: #e2e8f0;
   --border-strong: #cbd5e1;
 
-  /* High-Contrast Active Matrix Cells (as shown in reference screenshots) */
-  --matrix-active-bg: #ffffff;
-  --matrix-active-border: #000000;
-  --matrix-active-text: #000000;
-
   /* Typography */
   --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -204,14 +199,19 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.55rem 0.95rem;
+  padding: 0.55rem 1rem;
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: var(--font-display);
   border: none;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
 }
 
 .btn-export-primary {
@@ -812,13 +812,6 @@ body {
   gap: 1.35rem;
 }
 
-.exportable-resolution-zone {
-  display: flex;
-  flex-direction: column;
-  gap: 1.35rem;
-  background: transparent;
-}
-
 .workflow-card {
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
@@ -864,32 +857,11 @@ body {
   color: var(--text-muted);
 }
 
-.btn-card-snap {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: #ffffff;
-  border: 1px solid var(--border-strong);
-  color: var(--slate-navy);
-  font-size: 0.76rem;
-  font-weight: 600;
-  padding: 0.35rem 0.65rem;
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-card-snap:hover {
-  background: var(--slate-navy);
-  color: #ffffff;
-  border-color: var(--slate-navy);
-}
-
 .workflow-body {
   padding: 1.25rem 1.4rem;
 }
 
-/* Technical Tables & Matrices */
+/* Technical Step 1 Table */
 .table-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -937,136 +909,155 @@ body {
   color: var(--compliance-emerald);
 }
 
-/* Matrices Side-by-Side */
-.matrices-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+/* ==========================================================================
+   OFFICIAL RESOLUTION GRAPHIC CANVAS (MATCHING RESO VMA.pdf PAGE 5)
+   ========================================================================== */
+
+.resolution-document-canvas {
+  background: #ffffff;
+  padding: 1.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
 }
 
-@media (max-width: 900px) {
-  .matrices-split {
+.reso-matrices-row {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+@media (max-width: 950px) {
+  .reso-matrices-row {
     grid-template-columns: 1fr;
   }
 }
 
-.matrix-card {
-  border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+.reso-table-col {
+  overflow-x: auto;
+}
+
+.reso-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: #000000;
   background: #ffffff;
 }
 
-.matrix-card-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 0.9rem;
-  background: #f1f5f9;
-  border-bottom: 1px solid var(--border-strong);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--slate-navy);
-}
-
-.matrix-view th, .matrix-view td {
+.reso-table th, .reso-table td {
+  border: 1px solid #71717a;
   text-align: center;
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  padding: 0.65rem 0.5rem;
+  padding: 4px 6px;
+  vertical-align: middle;
 }
 
-.matrix-view th:first-child, .matrix-view td:first-child {
-  text-align: left;
-  font-family: var(--font-display);
+.reso-table th {
+  background: #e4e4e7;
   font-weight: 700;
-  background: #f8fafc;
+  color: #000000;
+  font-size: 0.72rem;
 }
 
-.vma-row td {
-  background: #f8fafc;
-  color: var(--text-muted);
+.reso-table .th-rango {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
 }
 
-/* Active Highlight Cell - Bold Black Border Box (As seen in Reference Screenshots) */
-.matrix-view td.cell-active {
-  background-color: var(--matrix-active-bg) !important;
-  color: var(--matrix-active-text) !important;
+.reso-table .th-group {
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.reso-table td:first-child {
+  text-align: left;
+  font-weight: 700;
+  background: #f4f4f5;
+}
+
+.reso-table .vma-row td {
+  background: #f4f4f5;
+  font-weight: 700;
+}
+
+/* Active Highlight Cell - Official Resolution Thick Box */
+.reso-table td.cell-active {
+  background-color: #fef08a !important;
+  color: #000000 !important;
   font-weight: 800 !important;
-  font-size: 0.9rem !important;
+  font-size: 0.82rem !important;
   outline: 2.5px solid #000000 !important;
   outline-offset: -2.5px;
   position: relative;
   z-index: 2;
 }
 
-/* Algebraic Formulas Grid */
-.algebraic-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-@media (max-width: 800px) {
-  .algebraic-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.math-box {
-  background: #ffffff;
-  border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  padding: 1.15rem;
+/* Official Formula Box (Numeral 3.2.3 of TRASS Resolution) */
+.reso-formula-box-container {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.25rem;
 }
 
-.math-box-primary {
-  border-color: var(--hydro-cyan);
+.reso-formula-box {
+  border: 1.5px solid #000000;
   background: #ffffff;
+  padding: 0.9rem 2.5rem;
+  text-align: center;
+  font-family: var(--font-display);
+  min-width: 380px;
+  max-width: 480px;
 }
 
-.math-label {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--slate-navy);
+.formula-line-1 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.25rem;
 }
 
-.math-formula-code {
-  font-family: var(--font-mono);
-  font-size: 0.95rem;
-  font-weight: 700;
-  background: #f8fafc;
-  padding: 0.85rem 1rem;
-  border-radius: var(--radius-xs);
-  border: 1px solid var(--border-strong);
-  color: var(--slate-navy);
-  overflow-x: auto;
+.formula-line-2 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.25rem;
 }
 
-.math-outcome {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-}
-
-.math-result-tag {
-  font-family: var(--font-mono);
-  font-size: 1.05rem;
+.formula-line-3 {
+  font-size: 1.15rem;
   font-weight: 800;
-  background: transparent;
-  color: #475569;
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-xs);
+  color: #000000;
 }
 
-.math-result-tag.result-accent {
+/* Step 5 PA Box */
+.reso-pa-box {
+  background: #f0f9ff;
+  border: 1.5px solid var(--hydro-cyan);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.pa-line-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #0369a1;
+}
+
+.pa-line-calc {
+  font-size: 1rem;
+  font-weight: 700;
   color: #0f172a;
+  margin: 0.35rem 0;
+}
+
+.pa-line-total {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--hydro-cyan);
 }
 
 /* Footer */
