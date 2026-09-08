@@ -980,8 +980,9 @@ body {
 }
 
 .reso-table .vma-row td {
-  background: #fafafa;
+  background: #ededed;
   font-weight: 700;
+  color: #000000;
 }
 
 /* Active Highlight Cell - Thick Black Bounding Box (No Yellow Fill) */
@@ -1007,8 +1008,7 @@ body {
 .reso-formula-box {
   border: 2px solid #000000;
   background: #ffffff;
-  padding: 1.1rem 3.5rem;
-  text-align: center;
+  padding: 1.1rem 2.75rem;
   font-family: 'Times New Roman', 'Liberation Serif', Georgia, serif;
   min-width: 420px;
   max-width: 520px;
@@ -1020,6 +1020,7 @@ body {
   color: #000000;
   margin-bottom: 0.35rem;
   letter-spacing: 0.02em;
+  text-align: left;
 }
 
 .formula-line-2 {
@@ -1028,6 +1029,7 @@ body {
   color: #000000;
   margin-bottom: 0.45rem;
   letter-spacing: 0.02em;
+  text-align: left;
 }
 
 .formula-line-3 {
@@ -1035,7 +1037,8 @@ body {
   font-weight: 900;
   color: #000000;
   letter-spacing: 0.04em;
-  margin-top: 0.15rem;
+  margin-top: 0.25rem;
+  text-align: center;
 }
 
 /* Step 5 PA Box */
