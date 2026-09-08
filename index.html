@@ -119,14 +119,6 @@
             <span class="meta-label">Norma / Resolución:</span>
             <span class="meta-value font-mono" id="metaResolucion">Resolucion Nro. 079-2021-SUNASS-CD</span>
           </div>
-          <div class="meta-row">
-            <span class="meta-label">Tramo de consumo aplicado:</span>
-            <span class="meta-value font-mono" id="metaTramo">0 a 1000 m³</span>
-          </div>
-          <div class="meta-sub-metrics">
-            <span id="metaCargoFijo">Cargo fijo: S/ 6.30</span>
-            <span id="metaTarifaAgua">Tarifa agua: S/ 8.82 / m³</span>
-          </div>
         </div>
       </div>
 
@@ -153,6 +145,29 @@
             </div>
           </div>
 
+          <!-- Desglose de Cálculo Escalonado (Estructura y Resolución) -->
+          <div class="tariff-calculation-breakdown" id="tariffCalcBreakdown">
+            <div class="calc-breakdown-section">
+              <div class="calc-breakdown-title">
+                <i class="ph-bold ph-tree-structure"></i>
+                <span>Estructura tarifaria del pliego:</span>
+              </div>
+              <ul class="calc-breakdown-list" id="calcEstructuraList">
+                <!-- Generado por JS -->
+              </ul>
+            </div>
+
+            <div class="calc-breakdown-section">
+              <div class="calc-breakdown-title">
+                <i class="ph-bold ph-calculator"></i>
+                <span>Resolución:</span>
+              </div>
+              <ol class="calc-resolucion-list" id="calcResolucionList">
+                <!-- Generado por JS -->
+              </ol>
+            </div>
+          </div>
+
           <!-- Input B (Auto from Catalog or Manual Override) -->
           <div class="field-item">
             <div class="derived-header">
@@ -170,6 +185,22 @@
               <span class="unit-tag">por m³</span>
             </div>
             <span class="dynamic-help-text" id="bSourceHint">Obtenida automáticamente del pliego SUNASS</span>
+          </div>
+
+          <!-- Tarifa de Agua Potable -->
+          <div class="field-item">
+            <div class="derived-header">
+              <label for="inputTarifaAgua" class="field-label">
+                <span class="token-letter token-agua">Agua</span>
+                <span>Tarifa servicio de saneamiento (agua)</span>
+              </label>
+            </div>
+            <div class="input-group">
+              <span class="currency-prefix">S/</span>
+              <input type="number" id="inputTarifaAgua" step="0.0001" min="0" value="8.82" readonly />
+              <span class="unit-tag">por m³</span>
+            </div>
+            <span class="dynamic-help-text" id="aguaSourceHint">Total facturado agua potable: S/ 2,610.72</span>
           </div>
 
           <!-- Input C (A x B) -->

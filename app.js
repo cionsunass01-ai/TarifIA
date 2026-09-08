@@ -139,15 +139,19 @@ const dom = {
 
   // Metadata de Tarifa
   metaResolucion: document.getElementById('metaResolucion'),
-  metaTramo: document.getElementById('metaTramo'),
-  metaCargoFijo: document.getElementById('metaCargoFijo'),
-  metaTarifaAgua: document.getElementById('metaTarifaAgua'),
+
+  // Desglose de Cálculo Escalonado
+  calcEstructuraList: document.getElementById('calcEstructuraList'),
+  calcResolucionList: document.getElementById('calcResolucionList'),
 
   // Facturación
   inputA: document.getElementById('inputA'),
   inputB: document.getElementById('inputB'),
   btnToggleLockB: document.getElementById('btnToggleLockB'),
   bSourceHint: document.getElementById('bSourceHint'),
+
+  inputTarifaAgua: document.getElementById('inputTarifaAgua'),
+  aguaSourceHint: document.getElementById('aguaSourceHint'),
 
   inputC: document.getElementById('inputC'),
   btnToggleLockC: document.getElementById('btnToggleLockC'),
@@ -262,32 +266,18 @@ function lookupTariffRecord() {
   const catData = perData[cat];
   if (!catData || catData.length === 0) return null;
 
-  // Si la categoría tiene un único tramo tarifario
-  if (catData.length === 1) {
-    const single = catData[0];
-    const totalAlcanta = +(volA * single.alcanta).toFixed(2);
-    const totalAgua = +(volA * single.agua).toFixed(2);
+  // 1. Estructura tarifaria del pliego
+  const estructuraLines = catData.map((t, idx) => {
+    const rangeStr = (t.fin === null || t.fin === undefined) ? `${t.ini} a más m³` : `${t.ini} a ${t.fin} m³`;
+    const tramoLabel = catData.length > 1 ? `Tramo ${idx + 1} (${rangeStr})` : `Tramo único (${rangeStr})`;
+    return `<strong>${tramoLabel}:</strong> Tarifa alcantarillado = S/ ${formatNumber(t.alcanta, 4)} | Tarifa agua = S/ ${formatNumber(t.agua, 4)}`;
+  });
 
-    return {
-      ...single,
-      volA,
-      alcanta: single.alcanta,
-      agua: single.agua,
-      totalAlcanta,
-      totalAgua,
-      tramoDesc: (single.fin === null ? `${single.ini} m³ a más` : `${single.ini} a ${single.fin} m³`),
-      breakdownText: `S/ ${formatNumber(single.alcanta, 4)} por m³`,
-      aguaBreakdownText: `S/ ${formatNumber(single.agua, 4)} por m³`,
-      cCalcBreakdown: `${formatNumber(volA)} m³ × S/ ${formatNumber(single.alcanta, 4)}`,
-      isEscalable: false,
-      activeTramosCount: 1
-    };
-  }
-
-  // Si la categoría tiene múltiples tramos (facturación por bloques de consumo)
+  // 2. Resolución por bloques de consumo
   let remVol = volA;
   let totalAlcanta = 0;
   let totalAgua = 0;
+  const resolucionLines = [];
   const tramoCalculations = [];
 
   for (let i = 0; i < catData.length; i++) {
@@ -302,6 +292,12 @@ function lookupTariffRecord() {
       const impAg = volInTramo * tramo.agua;
       totalAlcanta += impAlc;
       totalAgua += impAg;
+
+      const isRestante = (i > 0 && (i === catData.length - 1 || remVol <= tramoCapacity));
+      const volDesc = isRestante ? `${formatNumber(volInTramo)} m³ restantes` : `${formatNumber(volInTramo)} m³`;
+      const tramoPrefix = catData.length > 1 ? `Tramo ${i + 1} (${volDesc})` : `Tramo único (${volDesc})`;
+
+      resolucionLines.push(`<strong>${tramoPrefix}:</strong> ${formatNumber(volInTramo)} × ${formatNumber(tramo.alcanta, 4)} = S/ ${formatNumber(impAlc, 3)}`);
 
       const tramoName = tramo.fin === null ? `>${tramo.ini} m³` : `${tramo.ini}-${tramo.fin} m³`;
       tramoCalculations.push({
@@ -352,32 +348,45 @@ function lookupTariffRecord() {
     breakdownText: alcantaBreakdownText,
     aguaBreakdownText: aguaBreakdownText,
     cCalcBreakdown,
-    isEscalable: isMultipleActiveTramos,
+    isEscalable: catData.length > 1,
     activeTramosCount: tramoCalculations.length,
-    tramoCalculations
+    tramoCalculations,
+    estructuraLines,
+    resolucionLines
   };
 }
 
-// Actualizar tarifa B desde el catálogo
+// Actualizar tarifa B y estructura desde el catálogo
 function updateTariffFromCatalog() {
   const record = lookupTariffRecord();
   if (record) {
-    if (isAutoTariffB) {
+    if (dom.metaResolucion) {
+      dom.metaResolucion.textContent = record.res || 'Resolución SUNASS';
+    }
+
+    // Renderizar desglose de estructura y resolución
+    if (dom.calcEstructuraList && record.estructuraLines) {
+      dom.calcEstructuraList.innerHTML = record.estructuraLines.map(line => `<li>${line}</li>`).join('');
+    }
+    if (dom.calcResolucionList && record.resolucionLines) {
+      dom.calcResolucionList.innerHTML = record.resolucionLines.map(line => `<li>${line}</li>`).join('');
+    }
+
+    // Tarifa Alcantarillado B
+    if (isAutoTariffB && dom.inputB) {
       dom.inputB.value = record.alcanta;
-      if (record.isEscalable) {
-        dom.bSourceHint.textContent = `Tarifa media escalonada por tramos (${record.breakdownText})`;
+      if (record.isEscalable && record.activeTramosCount > 1) {
+        dom.bSourceHint.textContent = `Tarifa media escalonada (${record.breakdownText})`;
       } else {
         dom.bSourceHint.textContent = `Obtenida del pliego SUNASS (${dom.selectEP.value})`;
       }
     }
 
-    // Metadata en UI
-    dom.metaResolucion.textContent = record.res || 'Resolución SUNASS';
-    dom.metaTramo.textContent = record.tramoDesc;
-    dom.metaCargoFijo.textContent = `Cargo fijo: S/ ${formatNumber(record.cargo, 3)}`;
-    dom.metaTarifaAgua.textContent = `Tarifa agua: S/ ${formatNumber(record.agua, 4)} / m³ ${record.isEscalable ? '(Total: S/ ' + formatCurrency(record.totalAgua) + ')' : ''}`;
-  } else {
-    dom.metaTramo.textContent = 'No disponible';
+    // Tarifa Agua Potable
+    if (dom.inputTarifaAgua) {
+      dom.inputTarifaAgua.value = record.agua;
+      dom.aguaSourceHint.textContent = `Total facturado agua potable: S/ ${formatCurrency(record.totalAgua)}`;
+    }
   }
 }
 

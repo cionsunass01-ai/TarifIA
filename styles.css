@@ -346,7 +346,7 @@ body {
   background: #f0f9ff;
   border: 1px solid #bae6fd;
   border-radius: var(--radius-sm);
-  padding: 0.75rem 0.9rem;
+  padding: 0.65rem 0.9rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -356,7 +356,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
 }
 
 .meta-label {
@@ -369,15 +369,95 @@ body {
   font-weight: 700;
 }
 
-.meta-sub-metrics {
+/* Tariff Calculation Breakdown Box */
+.tariff-calculation-breakdown {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
   display: flex;
-  justify-content: space-between;
-  font-size: 0.72rem;
-  color: #0284c7;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.calc-breakdown-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.calc-breakdown-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: var(--slate-navy);
+  font-size: 0.78rem;
+}
+
+.calc-breakdown-title i {
+  color: var(--hydro-cyan);
+  font-size: 0.95rem;
+}
+
+.calc-breakdown-list, .calc-resolucion-list {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.calc-breakdown-list {
+  list-style: none;
+}
+
+.calc-breakdown-list li {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: #334155;
+  background: #ffffff;
+  padding: 0.35rem 0.65rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  line-height: 1.35;
+}
+
+.calc-resolucion-list {
+  list-style: none;
+  counter-reset: resolucion-counter;
+}
+
+.calc-resolucion-list li {
+  counter-increment: resolucion-counter;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
   font-weight: 600;
-  border-top: 1px dashed #bae6fd;
-  padding-top: 0.35rem;
-  margin-top: 0.15rem;
+  color: var(--slate-navy);
+  background: #ffffff;
+  padding: 0.38rem 0.65rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  line-height: 1.35;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.calc-resolucion-list li::before {
+  content: counter(resolucion-counter) ".";
+  font-weight: 800;
+  color: var(--hydro-cyan);
+  min-width: 1rem;
+}
+
+.token-agua {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.65rem;
+  font-weight: 800;
+  width: auto;
+  padding: 0 5px;
 }
 
 /* Fields Stack (Section 1) */
