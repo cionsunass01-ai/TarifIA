@@ -199,16 +199,50 @@ function lookupTariffRecord() {
   const catData = perData[cat];
   if (!catData || catData.length === 0) return null;
 
-  // Buscar tramo según volumen A
+  // Regla para 'Comercial y otros': es escalable y se suman todos los tramos de la categoría
+  if (cat.toLowerCase().startsWith('comercial')) {
+    const sumAlcanta = catData.reduce((sum, r) => sum + r.alcanta, 0);
+    const sumAgua = catData.reduce((sum, r) => sum + r.agua, 0);
+    const tramosStr = catData.map(r => (r.fin === null ? `${r.ini} a más` : `${r.ini}-${r.fin}`)).join(' + ');
+    const alcantaBreakdown = catData.map(r => formatNumber(r.alcanta, 2)).join(' + ');
+    const aguaBreakdown = catData.map(r => formatNumber(r.agua, 2)).join(' + ');
+
+    return {
+      ini: 0,
+      fin: null,
+      alcanta: +sumAlcanta.toFixed(4),
+      agua: +sumAgua.toFixed(4),
+      cargo: catData[0].cargo,
+      res: catData[0].res,
+      tramoDesc: catData.length > 1 ? `${tramosStr} (Suma de ${catData.length} tramos)` : (catData[0].fin === null ? `${catData[0].ini} a más m³` : `${catData[0].ini} a ${catData[0].fin} m³`),
+      breakdownText: catData.length > 1 ? `${alcantaBreakdown} = S/ ${formatNumber(sumAlcanta, 2)}` : `S/ ${formatNumber(sumAlcanta, 2)}`,
+      aguaBreakdownText: catData.length > 1 ? `${aguaBreakdown} = S/ ${formatNumber(sumAgua, 2)}` : `S/ ${formatNumber(sumAgua, 2)}`,
+      isEscalable: catData.length > 1
+    };
+  }
+
+  // Para otras categorías: búsqueda por tramo según el volumen consumido A
   for (const r of catData) {
     const fin = (r.fin === null || r.fin === undefined) ? Infinity : r.fin;
     if (volA >= r.ini && volA <= fin) {
-      return r;
+      return {
+        ...r,
+        tramoDesc: (r.fin === null ? `${r.ini} m³ a más` : `${r.ini} a ${r.fin} m³`),
+        breakdownText: `S/ ${formatNumber(r.alcanta, 4)}`,
+        aguaBreakdownText: `S/ ${formatNumber(r.agua, 4)}`,
+        isEscalable: false
+      };
     }
   }
 
-  // Si supera el último tramo
-  return catData[catData.length - 1];
+  const last = catData[catData.length - 1];
+  return {
+    ...last,
+    tramoDesc: (last.fin === null ? `${last.ini} m³ a más` : `${last.ini} a ${last.fin} m³`),
+    breakdownText: `S/ ${formatNumber(last.alcanta, 4)}`,
+    aguaBreakdownText: `S/ ${formatNumber(last.agua, 4)}`,
+    isEscalable: false
+  };
 }
 
 // Actualizar tarifa B desde el catálogo
@@ -217,17 +251,18 @@ function updateTariffFromCatalog() {
   if (record) {
     if (isAutoTariffB) {
       dom.inputB.value = record.alcanta;
-      dom.bSourceHint.textContent = `Obtenida del pliego SUNASS (${dom.selectEP.value})`;
+      if (record.isEscalable) {
+        dom.bSourceHint.textContent = `Tarifa escalable sumada (${record.breakdownText})`;
+      } else {
+        dom.bSourceHint.textContent = `Obtenida del pliego SUNASS (${dom.selectEP.value})`;
+      }
     }
 
     // Metadata en UI
     dom.metaResolucion.textContent = record.res || 'Resolución SUNASS';
-    const tramoStr = (record.fin === null || record.fin === undefined)
-      ? `${record.ini} m³ a más`
-      : `${record.ini} a ${record.fin} m³`;
-    dom.metaTramo.textContent = tramoStr;
+    dom.metaTramo.textContent = record.tramoDesc;
     dom.metaCargoFijo.textContent = `Cargo fijo: S/ ${formatNumber(record.cargo, 3)}`;
-    dom.metaTarifaAgua.textContent = `Tarifa agua: S/ ${formatNumber(record.agua, 3)} / m³`;
+    dom.metaTarifaAgua.textContent = `Tarifa agua: S/ ${formatNumber(record.agua, 3)} / m³ ${record.isEscalable ? '(' + record.aguaBreakdownText + ')' : ''}`;
   } else {
     dom.metaTramo.textContent = 'No disponible';
   }
