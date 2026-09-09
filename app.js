@@ -702,7 +702,26 @@ function applyPreset(presetKey) {
   dom.inputSST.value = p.sst;
   dom.inputAyG.value = p.ayg;
 
+  updateLockUI();
   calculateVMA();
+}
+
+function updateLockUI() {
+  if (dom.btnToggleLockB) {
+    dom.btnToggleLockB.classList.toggle('active', isAutoCalcB);
+    dom.btnToggleLockB.innerHTML = isAutoCalcB ? '<i class="ph-bold ph-lock-key"></i>' : '<i class="ph-bold ph-lock-key-open"></i>';
+    dom.btnToggleLockB.title = isAutoCalcB 
+      ? 'Modo automático: Calculado desde el pliego SUNASS. Clic para ingresar un monto manual.' 
+      : 'Modo manual activo. Clic para restaurar cálculo automático desde el pliego SUNASS.';
+  }
+
+  if (dom.btnToggleLockC) {
+    dom.btnToggleLockC.classList.toggle('active', isAutoCalcC);
+    dom.btnToggleLockC.innerHTML = isAutoCalcC ? '<i class="ph-bold ph-lock-key"></i>' : '<i class="ph-bold ph-lock-key-open"></i>';
+    dom.btnToggleLockC.title = isAutoCalcC 
+      ? 'Modo automático: Calculado desde el pliego SUNASS. Clic para ingresar un monto manual.' 
+      : 'Modo manual activo. Clic para restaurar cálculo automático desde el pliego SUNASS.';
+  }
 }
 
 // Event Listeners
@@ -734,7 +753,7 @@ function initListeners() {
   // Input B (Importe facturado alcantarillado manual)
   dom.inputB.addEventListener('input', () => {
     isAutoCalcB = false;
-    dom.btnToggleLockB.classList.remove('active');
+    updateLockUI();
     if (dom.bSourceHint) dom.bSourceHint.textContent = 'Importe personalizado ingresado manualmente (Sin IGV)';
     calculateVMA();
   });
@@ -742,14 +761,14 @@ function initListeners() {
   // Bloqueo B
   dom.btnToggleLockB.addEventListener('click', () => {
     isAutoCalcB = !isAutoCalcB;
-    dom.btnToggleLockB.classList.toggle('active', isAutoCalcB);
+    updateLockUI();
     calculateVMA();
   });
 
   // Input C (Importe facturado agua manual)
   dom.inputC.addEventListener('input', () => {
     isAutoCalcC = false;
-    dom.btnToggleLockC.classList.remove('active');
+    updateLockUI();
     if (dom.cSourceHint) dom.cSourceHint.textContent = 'Importe personalizado ingresado manualmente (Sin IGV)';
     calculateVMA();
   });
@@ -757,7 +776,7 @@ function initListeners() {
   // Bloqueo C
   dom.btnToggleLockC.addEventListener('click', () => {
     isAutoCalcC = !isAutoCalcC;
-    dom.btnToggleLockC.classList.toggle('active', isAutoCalcC);
+    updateLockUI();
     calculateVMA();
   });
 
