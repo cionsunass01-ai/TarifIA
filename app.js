@@ -785,10 +785,12 @@ function initListeners() {
     input.addEventListener('input', calculateVMA);
   });
 
-  // Preset
-  dom.selectPreset.addEventListener('change', (e) => {
-    applyPreset(e.target.value);
-  });
+  // Preset (si está presente en el DOM)
+  if (dom.selectPreset) {
+    dom.selectPreset.addEventListener('change', (e) => {
+      applyPreset(e.target.value);
+    });
+  }
 
 
   // Botón principal de Descargar Cuadro

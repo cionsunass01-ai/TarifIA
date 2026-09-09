@@ -1112,6 +1112,16 @@ body {
   height: 100%;
 }
 
+.reso-table-title {
+  font-family: 'Times New Roman', 'Liberation Serif', Georgia, serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #000000;
+  text-align: center;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
 .reso-table {
   width: 100%;
   height: 100%;
@@ -1161,14 +1171,14 @@ body {
   color: #000000;
 }
 
-/* Active Highlight Cell - Thick Black Bounding Box (No Yellow Fill) */
+/* Active Highlight Cell - Thick Red Bounding Box (Exact Resolution Document Format) */
 .reso-table td.cell-active {
   background-color: #ffffff !important;
   color: #000000 !important;
   font-weight: 900 !important;
   font-size: 0.88rem !important;
-  border: 2.5px solid #000000 !important;
-  outline: 2.5px solid #000000 !important;
+  border: 2.5px solid #dc2626 !important;
+  outline: 2.5px solid #dc2626 !important;
   outline-offset: -2.5px;
   position: relative;
   z-index: 5;

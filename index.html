@@ -42,17 +42,6 @@
       </div>
 
       <div class="header-controls">
-        <div class="quick-cases-dropdown">
-          <label for="selectPreset" class="sr-only">Seleccionar caso de estudio</label>
-          <select id="selectPreset" class="select-field" title="Cargar caso de estudio predeterminado">
-            <option value="salud" selected>Caso: Centro de Salud (Ejemplo Diapositiva)</option>
-            <option value="resolucion">Caso: Reclamo Resuelto (Resolución TRASS N° 01666-2026)</option>
-            <option value="restaurante">Caso: Restaurante / Pollería (Trujillo · SEDALIB)</option>
-            <option value="textil">Caso: Industria Textil (Arequipa · SEDAPAR)</option>
-            <option value="cumple">Caso: Cumplimiento total (Sin exceso)</option>
-          </select>
-        </div>
-        
         <!-- Primary Action: Descargar Cuadro -->
         <button type="button" class="btn btn-export-primary" id="btnExportResolutionImg" title="Descargar cuadro oficial para resolución en formato PNG">
           <i class="ph-bold ph-download-simple"></i>
@@ -437,6 +426,10 @@
                 
                 <!-- Table 1: Rangos de Concentración -->
                 <div class="reso-table-col">
+                  <div class="reso-table-title">
+                    <div>Tabla Nº 1</div>
+                    <div>Rangos de Concentración</div>
+                  </div>
                   <table class="reso-table" id="resoTableRangos">
                     <thead>
                       <tr>
@@ -489,6 +482,10 @@
 
                 <!-- Table 2: Factores Individuales Fi -->
                 <div class="reso-table-col">
+                  <div class="reso-table-title">
+                    <div>Tabla Nº 2</div>
+                    <div>Factores individuales de exceso de concentración</div>
+                  </div>
                   <table class="reso-table" id="resoTableFactores">
                     <thead>
                       <tr>
@@ -608,19 +605,19 @@
                   </span>
                 </div>
                 <p class="summary-info-desc">
-                  Este consolidado representa los importes a facturar por concepto de agua y alcantarillado así como del pago adicional por exceso de los VMA.
+                  Este consolidado representa los importes a facturar por concepto de agua y alcantarillado del UND así como del pago adicional por exceso de los VMA.
                 </p>
               </div>
 
               <!-- Bill Breakdown Slip Right -->
               <div class="summary-slip-box">
                 <div class="summary-slip-row">
-                  <span class="slip-label-text">Importe facturado alcantarillado (B) <small class="tax-tag-mini">Sin IGV</small></span>
+                  <span class="slip-label-text">Importe facturado alcantarillado del UND <small class="tax-tag-mini">Sin IGV</small></span>
                   <span class="slip-val font-mono" id="slipBaseB">S/ 668.65</span>
                 </div>
 
                 <div class="summary-slip-row">
-                  <span class="slip-label-text">Importe facturado agua (C) <small class="tax-tag-mini">Sin IGV</small></span>
+                  <span class="slip-label-text">Importe facturado agua del UND <small class="tax-tag-mini">Sin IGV</small></span>
                   <span class="slip-val font-mono" id="slipBaseC">S/ 854.80</span>
                 </div>
 
