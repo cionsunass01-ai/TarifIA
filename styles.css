@@ -632,10 +632,17 @@ body {
 }
 
 .tax-tag {
-  font-size: 0.7rem;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: #0369a1;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  padding: 2px 7px;
+  border-radius: 4px;
 }
 
 .btn-lock {
@@ -792,43 +799,16 @@ body {
 }
 
 /* ==========================================================================
-   Fiscal Hero Bill (Main Result Header)
+   Compliance Badges & Penalty Indicators
    ========================================================================== */
-
-.fiscal-hero-bill {
-  background: linear-gradient(135deg, var(--slate-navy) 0%, #15253e 100%);
-  color: var(--text-on-dark);
-  border-radius: var(--radius-lg);
-  padding: 1.85rem;
-  display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 1.85rem;
-  box-shadow: var(--shadow-bill);
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-@media (max-width: 900px) {
-  .fiscal-hero-bill {
-    grid-template-columns: 1fr;
-  }
-}
-
-.bill-badge-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.65rem;
-  margin-bottom: 1rem;
-}
 
 .compliance-state-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(220, 38, 38, 0.2);
-  color: #fca5a5;
-  border: 1px solid rgba(220, 38, 38, 0.4);
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
   font-size: 0.76rem;
   font-weight: 700;
   padding: 0.3rem 0.7rem;
@@ -836,120 +816,24 @@ body {
 }
 
 .compliance-state-pill.is-ok {
-  background: rgba(5, 150, 105, 0.2);
-  color: #86efac;
-  border-color: rgba(5, 150, 105, 0.4);
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
 }
 
 .penalty-multiplier {
   font-size: 0.76rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
   padding: 0.3rem 0.7rem;
   border-radius: 9999px;
-  color: #e2e8f0;
+  color: var(--slate-navy);
+  font-weight: 600;
 }
 
 .penalty-multiplier strong {
-  color: var(--hydro-cyan-bright);
-}
-
-.bill-headline {
-  margin-bottom: 0.5rem;
-}
-
-.bill-label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #94a3b8;
-  margin-bottom: 0.2rem;
-}
-
-.bill-main-figure {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-}
-
-.figure-currency {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--hydro-cyan-bright);
-}
-
-.figure-amount {
-  font-family: var(--font-mono);
-  font-size: 2.75rem;
+  color: #0369a1;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #ffffff;
-}
-
-.bill-annotation {
-  font-size: 0.78rem;
-  color: #94a3b8;
-  max-width: 480px;
-}
-
-/* Fiscal Slip */
-.bill-breakdown-slip {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-sm);
-  padding: 1.15rem 1.35rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.55rem;
-}
-
-.slip-title {
-  font-size: 0.76rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--hydro-cyan-bright);
-  margin-bottom: 0.25rem;
-}
-
-.slip-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.82rem;
-  color: #94a3b8;
-}
-
-.slip-num {
-  font-family: var(--font-mono);
-  color: #f1f5f9;
-}
-
-.slip-row.slip-accent {
-  color: #ffffff;
-}
-
-.slip-row.slip-accent .slip-num {
-  color: var(--hydro-cyan-bright);
-  font-weight: 700;
-}
-
-.slip-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.12);
-  margin: 0.2rem 0;
-}
-
-.slip-row.slip-total {
-  color: #ffffff;
-  font-weight: 700;
-  margin-top: 0.25rem;
-}
-
-.total-highlight {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #ffffff;
 }
 
 /* ==========================================================================
@@ -1199,32 +1083,244 @@ body {
   line-height: 1.2;
 }
 
-/* Step 5 PA Box */
-.reso-pa-box {
-  background: #f0f9ff;
-  border: 1.5px solid var(--hydro-cyan);
-  border-radius: var(--radius-sm);
-  padding: 1.25rem;
-  text-align: center;
+/* ==========================================================================
+   Step 5 Featured PA Card (Highest Priority Focal Point)
+   ========================================================================== */
+
+.step5-featured-card {
+  border: 2px solid #0284c7;
+  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.12);
 }
 
-.pa-line-title {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #0369a1;
+.step-circle-featured {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
 }
 
-.pa-line-calc {
-  font-size: 1rem;
+.step-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-norm-badge {
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #0f172a;
-  margin: 0.35rem 0;
+  color: #0369a1;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  white-space: nowrap;
 }
 
-.pa-line-total {
-  font-size: 1.45rem;
+.step5-pa-hero-box {
+  background: linear-gradient(180deg, #f8fafc 0%, #f0f9ff 100%);
+  border: 1.5px solid #bae6fd;
+  border-radius: var(--radius-md);
+  padding: 1.4rem 1.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.pa-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pa-formula-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0369a1;
+  background: #ffffff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #e0f2fe;
+}
+
+.pa-calc-text {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--slate-navy);
+}
+
+.pa-hero-figure-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.35rem 0;
+}
+
+.pa-figure-caption {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pa-figure-amount-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.pa-figure-currency {
+  font-size: 1.85rem;
   font-weight: 800;
-  color: var(--hydro-cyan);
+  color: #0284c7;
+}
+
+.pa-figure-amount {
+  font-size: 2.85rem;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.pa-hero-annotation {
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.4;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 0.65rem;
+}
+
+/* ==========================================================================
+   Informative General Summary Card (Clean & Balanced)
+   ========================================================================== */
+
+.summary-general-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+}
+
+.step-circle-info {
+  background: #475569 !important;
+  color: #ffffff !important;
+  font-size: 0.95rem;
+}
+
+.summary-general-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1.35fr;
+  gap: 1.5rem;
+  padding: 0.25rem 0;
+}
+
+@media (max-width: 860px) {
+  .summary-general-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  justify-content: center;
+}
+
+.summary-badges-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.summary-info-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.summary-slip-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-slip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--slate-navy);
+}
+
+.slip-label-text {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tax-tag-mini {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.slip-val {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.slip-row-pa {
+  color: #0369a1;
+  background: #f0f9ff;
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin: 1px -6px;
+}
+
+.slip-val-pa {
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}
+
+.summary-slip-divider {
+  height: 1px;
+  background: #cbd5e1;
+  margin: 0.25rem 0;
+}
+
+.summary-slip-total {
+  padding-top: 0.35rem;
+  border-top: 1.5px solid #94a3b8;
+  margin-top: 0.15rem;
+}
+
+.slip-total-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.slip-total-amount {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #0f172a;
 }
 
 /* Footer */

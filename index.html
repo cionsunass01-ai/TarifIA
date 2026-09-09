@@ -180,44 +180,46 @@
           <!-- Parámetros Oficiales Resultantes para Liquidación VMA (B y C) -->
           <div class="commercial-results-grid">
             
-            <!-- Result B: Tarifa Unitaria Ponderada -->
-            <div class="result-metric-card">
-              <div class="result-metric-head">
-                <label for="inputB" class="result-label">
-                  <span class="token-letter">B</span>
-                  <span>Tarifa media alcantarillado</span>
-                </label>
-                <button type="button" id="btnToggleLockB" class="btn-lock active" title="Cálculo automático desde el pliego SUNASS. Clic para editar manualmente.">
-                  <i class="ph-bold ph-lock-key"></i>
-                </button>
-              </div>
-              <div class="input-group">
-                <span class="currency-prefix">S/</span>
-                <input type="number" id="inputB" step="0.0001" min="0" value="4.4577" />
-                <span class="unit-tag">por m³</span>
-              </div>
-              <span class="metric-help-text" id="bSourceHint">Tarifa ponderada por m³ (C / A)</span>
-            </div>
-
-            <!-- Result C: Importe Base Saneamiento (A x B) -->
+            <!-- Result B: Importe facturado alcantarillado (Base Saneamiento) -->
             <div class="result-metric-card result-metric-highlight">
               <div class="result-metric-head">
-                <label for="inputC" class="result-label">
-                  <span class="token-letter token-derived">C</span>
-                  <span>Importe facturado base saneamiento</span>
+                <label for="inputB" class="result-label">
+                  <span class="token-letter token-derived">B</span>
+                  <span>Importe facturado alcantarillado</span>
                 </label>
                 <div class="result-head-actions">
                   <span class="tax-tag">Sin IGV</span>
-                  <button type="button" id="btnToggleLockC" class="btn-lock active" title="Cálculo automático activado. Clic para editar manualmente.">
+                  <button type="button" id="btnToggleLockB" class="btn-lock active" title="Cálculo automático desde el pliego SUNASS. Clic para editar manualmente.">
                     <i class="ph-bold ph-lock-key"></i>
                   </button>
                 </div>
               </div>
               <div class="input-group">
                 <span class="currency-prefix">S/</span>
-                <input type="number" id="inputC" step="0.01" min="0" value="668.65" />
+                <input type="number" id="inputB" step="0.01" min="0" value="668.65" />
               </div>
-              <span class="metric-help-text">Base imponible de saneamiento para recargo VMA</span>
+              <span class="metric-help-text" id="bSourceHint">Base imponible de saneamiento para recargo VMA (Sin IGV)</span>
+            </div>
+
+            <!-- Result C: Importe facturado agua -->
+            <div class="result-metric-card">
+              <div class="result-metric-head">
+                <label for="inputC" class="result-label">
+                  <span class="token-letter">C</span>
+                  <span>Importe facturado agua</span>
+                </label>
+                <div class="result-head-actions">
+                  <span class="tax-tag">Sin IGV</span>
+                  <button type="button" id="btnToggleLockC" class="btn-lock active" title="Cálculo automático desde el pliego SUNASS. Clic para editar manualmente.">
+                    <i class="ph-bold ph-lock-key"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="currency-prefix">S/</span>
+                <input type="number" id="inputC" step="0.01" min="0" value="854.80" />
+              </div>
+              <span class="metric-help-text" id="cSourceHint">Importe facturado por servicio de agua potable (Sin IGV)</span>
             </div>
 
           </div>
@@ -379,64 +381,6 @@
     <!-- Right Panel: Results & Regulatory Matrices -->
     <section class="panel-results">
       
-      <!-- Fiscal Liquidación Hero Card -->
-      <div class="fiscal-hero-bill">
-        <div class="bill-primary">
-          <div class="bill-badge-header">
-            <span class="compliance-state-pill" id="heroComplianceBadge">
-              <i class="ph-bold ph-warning"></i>
-              <span>Exceso de concentración detectado</span>
-            </span>
-            <span class="penalty-multiplier" id="heroMultiplierBadge">
-              Factor Total F = <strong>1400%</strong> (14.0×)
-            </span>
-          </div>
-
-          <div class="bill-headline">
-            <span class="bill-label">Pago Adicional por Exceso de Concentración (PA)</span>
-            <div class="bill-main-figure">
-              <span class="figure-currency">S/</span>
-              <span class="figure-amount" id="displayPAAmount">17,446.24</span>
-            </div>
-          </div>
-
-          <p class="bill-annotation" id="billAnnotation">
-            Liquidación correspondiente a los parámetros que superan los Valores Máximos Admisibles.
-          </p>
-        </div>
-
-        <div class="bill-breakdown-slip">
-          <h3 class="slip-title">Liquidación total del recibo</h3>
-          
-          <div class="slip-row">
-            <span>Importe base saneamiento (C)</span>
-            <span class="slip-num" id="slipBaseC">S/ 1,246.16</span>
-          </div>
-          
-          <div class="slip-row slip-accent">
-            <span>+ Recargo por exceso (PA)</span>
-            <span class="slip-num" id="slipAmountPA">S/ 17,446.24</span>
-          </div>
-
-          <div class="slip-divider"></div>
-
-          <div class="slip-row">
-            <span>Subtotal saneamiento (Sin IGV)</span>
-            <span class="slip-num font-medium" id="slipSubtotal">S/ 18,692.40</span>
-          </div>
-
-          <div class="slip-row">
-            <span>IGV (18%)</span>
-            <span class="slip-num" id="slipIGV">S/ 3,364.63</span>
-          </div>
-
-          <div class="slip-row slip-total">
-            <span>Total a facturar estimado</span>
-            <span class="slip-num total-highlight" id="slipTotalWithIGV">S/ 22,057.03</span>
-          </div>
-        </div>
-      </div>
-
       <!-- Technical Workflow Container -->
       <div class="technical-workflow">
         
@@ -606,20 +550,103 @@
           </div>
         </article>
 
-        <!-- Step 5: Liquidación PA -->
-        <article class="workflow-card">
+        <!-- Step 5: Liquidación PA (Elemento de Mayor Interés y Protagonismo) -->
+        <article class="workflow-card step5-featured-card">
           <header class="workflow-header">
-            <div class="step-circle">5</div>
+            <div class="step-circle step-circle-featured">5</div>
             <div class="workflow-header-info">
-              <h3 class="workflow-title">Determinación del Pago Adicional (PA = Importe facturado × F)</h3>
-              <p class="workflow-desc">Liquidación monetaria del numeral 3.2.4 de la resolución</p>
+              <div class="step-header-flex">
+                <h3 class="workflow-title">Determinación del Pago Adicional (PA = Importe facturado alcantarillado × F)</h3>
+                <span class="step-norm-badge">Numeral 3.2.4</span>
+              </div>
+              <p class="workflow-desc">Liquidación monetaria del recargo por exceso de concentración conforme a resolución TRASS</p>
             </div>
           </header>
           <div class="workflow-body">
-            <div class="reso-pa-box" id="resoPABox">
-              <div class="pa-line-title">PA = Importe facturado saneamiento × F</div>
-              <div class="pa-line-calc" id="resoPAExpanded">PA = S/ 1,246.16 × 1400%</div>
-              <div class="pa-line-total" id="resoPATotal">PA = S/ 17,446.24</div>
+            <div class="step5-pa-hero-box" id="resoPABox">
+              <div class="pa-hero-top">
+                <span class="pa-formula-badge"><i class="ph-bold ph-calculator"></i> PA = B (Alcantarillado) × F (Factor Total)</span>
+                <span class="pa-calc-text font-mono" id="resoPAExpanded">PA = S/ 668.65 × 1400%</span>
+              </div>
+              
+              <div class="pa-hero-figure-container">
+                <span class="pa-figure-caption">Pago Adicional por Exceso de Concentración (PA)</span>
+                <div class="pa-figure-amount-row">
+                  <span class="pa-figure-currency">S/</span>
+                  <span class="pa-figure-amount font-mono" id="displayPAAmount">9,361.10</span>
+                </div>
+              </div>
+
+              <div class="pa-hero-annotation" id="billAnnotation">
+                Liquidación correspondiente a los parámetros que superan los Valores Máximos Admisibles (DBO₅, DQO, SST, AyG).
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Resumen General Informativo de Facturación y Recibo Estimado -->
+        <article class="workflow-card summary-general-card">
+          <header class="workflow-header">
+            <div class="step-circle step-circle-info"><i class="ph-bold ph-receipt"></i></div>
+            <div class="workflow-header-info">
+              <h3 class="workflow-title">Resumen general de facturación y recibo estimado</h3>
+              <p class="workflow-desc">Consolidado informativo de los servicios de alcantarillado, agua potable, recargo VMA e IGV</p>
+            </div>
+          </header>
+          <div class="workflow-body">
+            <div class="summary-general-grid">
+              
+              <!-- Info States Left -->
+              <div class="summary-info-col">
+                <div class="summary-badges-stack">
+                  <span class="compliance-state-pill" id="heroComplianceBadge">
+                    <i class="ph-bold ph-warning"></i>
+                    <span>Exceso de concentración detectado</span>
+                  </span>
+                  <span class="penalty-multiplier" id="heroMultiplierBadge">
+                    Factor Total F = <strong>1400%</strong> (14.0×)
+                  </span>
+                </div>
+                <p class="summary-info-desc">
+                  Este consolidado presenta la liquidación mensual del recibo para el Usuario No Doméstico (UND), sumando la facturación comercial de los servicios base y el recargo normativo por exceso de concentración VMA.
+                </p>
+              </div>
+
+              <!-- Bill Breakdown Slip Right -->
+              <div class="summary-slip-box">
+                <div class="summary-slip-row">
+                  <span class="slip-label-text">Importe facturado alcantarillado (B) <small class="tax-tag-mini">Sin IGV</small></span>
+                  <span class="slip-val font-mono" id="slipBaseB">S/ 668.65</span>
+                </div>
+
+                <div class="summary-slip-row">
+                  <span class="slip-label-text">Importe facturado agua (C) <small class="tax-tag-mini">Sin IGV</small></span>
+                  <span class="slip-val font-mono" id="slipBaseC">S/ 854.80</span>
+                </div>
+
+                <div class="summary-slip-row slip-row-pa">
+                  <span class="slip-label-text"><strong>+ Recargo por exceso (PA)</strong> <small class="tax-tag-mini">Sin IGV</small></span>
+                  <span class="slip-val slip-val-pa font-mono" id="slipAmountPA">S/ 9,361.10</span>
+                </div>
+
+                <div class="summary-slip-divider"></div>
+
+                <div class="summary-slip-row">
+                  <span class="slip-label-text font-medium">Subtotal facturado (Sin IGV)</span>
+                  <span class="slip-val font-mono font-medium" id="slipSubtotal">S/ 10,884.55</span>
+                </div>
+
+                <div class="summary-slip-row">
+                  <span class="slip-label-text">IGV (18%)</span>
+                  <span class="slip-val font-mono" id="slipIGV">S/ 1,959.22</span>
+                </div>
+
+                <div class="summary-slip-row summary-slip-total">
+                  <span class="slip-total-label">Total estimado del recibo</span>
+                  <span class="slip-total-amount font-mono" id="slipTotalWithIGV">S/ 12,843.77</span>
+                </div>
+              </div>
+
             </div>
           </div>
         </article>

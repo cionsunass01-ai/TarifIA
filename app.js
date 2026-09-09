@@ -79,7 +79,6 @@ const PRESETS = {
     periodo: '2025-10',
     categoria: 'Comercial y otros',
     a: 17,
-    b: 3.486,
     dbo5: 629.5,
     dqo: 1399,
     sst: 211,
@@ -121,7 +120,7 @@ const PRESETS = {
 };
 
 // Estados
-let isAutoTariffB = true;
+let isAutoCalcB = true;
 let isAutoCalcC = true;
 
 // Referencias DOM
@@ -145,7 +144,7 @@ const dom = {
   tbodyCommercialBreakdown: document.getElementById('tbodyCommercialBreakdown'),
   tfootCommercialBreakdown: document.getElementById('tfootCommercialBreakdown'),
 
-  // Facturación
+  // Facturación Comercial
   inputA: document.getElementById('inputA'),
   inputB: document.getElementById('inputB'),
   btnToggleLockB: document.getElementById('btnToggleLockB'),
@@ -153,6 +152,7 @@ const dom = {
 
   inputC: document.getElementById('inputC'),
   btnToggleLockC: document.getElementById('btnToggleLockC'),
+  cSourceHint: document.getElementById('cSourceHint'),
 
   // Laboratorio
   inputDBO5: document.getElementById('inputDBO5'),
@@ -166,6 +166,7 @@ const dom = {
   displayPAAmount: document.getElementById('displayPAAmount'),
   billAnnotation: document.getElementById('billAnnotation'),
 
+  slipBaseB: document.getElementById('slipBaseB'),
   slipBaseC: document.getElementById('slipBaseC'),
   slipAmountPA: document.getElementById('slipAmountPA'),
   slipSubtotal: document.getElementById('slipSubtotal'),
@@ -359,13 +360,19 @@ function updateTariffFromCatalog() {
     `;
   }
 
-  // Tarifa Alcantarillado B
-  if (isAutoTariffB && dom.inputB) {
-    dom.inputB.value = record.alcanta;
-    if (record.isEscalable) {
-      dom.bSourceHint.textContent = `Tarifa media ponderada (${formatNumber(record.alcanta, 4)} S/ por m³)`;
-    } else {
-      dom.bSourceHint.textContent = `Obtenida del pliego SUNASS (${dom.selectEP.value})`;
+  // Importe Facturado Alcantarillado B (Sin IGV)
+  if (isAutoCalcB && dom.inputB) {
+    dom.inputB.value = record.totalAlcanta.toFixed(2);
+    if (dom.bSourceHint) {
+      dom.bSourceHint.textContent = 'Importe base de alcantarillado calculado (Sin IGV)';
+    }
+  }
+
+  // Importe Facturado Agua C (Sin IGV)
+  if (isAutoCalcC && dom.inputC) {
+    dom.inputC.value = record.totalAgua.toFixed(2);
+    if (dom.cSourceHint) {
+      dom.cSourceHint.textContent = 'Importe de agua potable calculado (Sin IGV)';
     }
   }
 }
@@ -419,17 +426,19 @@ function calculateVMA() {
   const record = lookupTariffRecord();
 
   const valA = parseFloat(dom.inputA.value) || 0;
-  const valB = parseFloat(dom.inputB.value) || 0;
+
+  let valB = 0;
+  if (isAutoCalcB) {
+    valB = record ? record.totalAlcanta : (parseFloat(dom.inputB.value) || 0);
+    dom.inputB.value = valB.toFixed(2);
+  } else {
+    valB = parseFloat(dom.inputB.value) || 0;
+  }
 
   let valC = 0;
   if (isAutoCalcC) {
-    if (record && record.isEscalable && isAutoTariffB) {
-      valC = record.totalAlcanta;
-      dom.inputC.value = valC.toFixed(2);
-    } else {
-      valC = +(valA * valB).toFixed(2);
-      dom.inputC.value = valC.toFixed(2);
-    }
+    valC = record ? record.totalAgua : (parseFloat(dom.inputC.value) || 0);
+    dom.inputC.value = valC.toFixed(2);
   } else {
     valC = parseFloat(dom.inputC.value) || 0;
   }
@@ -448,17 +457,17 @@ function calculateVMA() {
   // Paso 4: Sumatoria de Factores
   const factorTotal = params.dbo5.factor + params.dqo.factor + params.sst.factor + params.ayg.factor;
   
-  // Paso 5: Pago Adicional
+  // Paso 5: Pago Adicional (PA = Importe facturado alcantarillado B × Factor)
   const factorMultiplicador = factorTotal / 100;
-  const montoPA = valC * factorMultiplicador;
+  const montoPA = valB * factorMultiplicador;
 
-  // Fiscal Totals
-  const subtotalSinIGV = valC + montoPA;
+  // Totales Fiscales del Recibo (Alcantarillado B + Agua C + Recargo PA)
+  const subtotalSinIGV = valB + valC + montoPA;
   const montoIGV = subtotalSinIGV * 0.18;
   const totalConIGV = subtotalSinIGV + montoIGV;
 
-  updateFormulasDisplay(valC, params, factorTotal, montoPA);
-  updateHeroBill(valC, factorTotal, montoPA, subtotalSinIGV, montoIGV, totalConIGV, params);
+  updateFormulasDisplay(valB, params, factorTotal, montoPA);
+  updateHeroBill(valB, valC, factorTotal, montoPA, subtotalSinIGV, montoIGV, totalConIGV, params);
 }
 
 // UI Helpers
@@ -537,7 +546,7 @@ function highlightMatrices(params) {
   });
 }
 
-function updateFormulasDisplay(valC, params, factorTotal, montoPA) {
+function updateFormulasDisplay(valB, params, factorTotal, montoPA) {
   // Formato oficial de resolución TRASS (F = DBO + DQO + SST + AyG)
   // Muestra 0% para parámetros que no superen VMA (conforme a resoluciones TRASS)
   const line2Text = `F = ${params.dbo5.factor}% + ${params.dqo.factor}% + ${params.sst.factor}% + ${params.ayg.factor}%`;
@@ -549,16 +558,16 @@ function updateFormulasDisplay(valC, params, factorTotal, montoPA) {
     dom.resoFormulaTotal.textContent = `F = ${factorTotal}%`;
   }
 
-  // Formato de liquidación PA
+  // Formato de liquidación PA (PA = Importe facturado alcantarillado B x F)
   if (dom.resoPAExpanded) {
-    dom.resoPAExpanded.textContent = `PA = S/ ${formatCurrency(valC)} × ${factorTotal}%`;
+    dom.resoPAExpanded.textContent = `PA = S/ ${formatCurrency(valB)} × ${factorTotal}%`;
   }
   if (dom.resoPATotal) {
     dom.resoPATotal.textContent = `PA = S/ ${formatCurrency(montoPA)}`;
   }
 }
 
-function updateHeroBill(valC, factorTotal, montoPA, subtotalSinIGV, montoIGV, totalConIGV, params) {
+function updateHeroBill(valB, valC, factorTotal, montoPA, subtotalSinIGV, montoIGV, totalConIGV, params) {
   dom.displayPAAmount.textContent = formatCurrency(montoPA);
   
   const exceededList = Object.values(params).filter(p => p.isExceeded);
@@ -576,7 +585,12 @@ function updateHeroBill(valC, factorTotal, montoPA, subtotalSinIGV, montoIGV, to
 
   dom.heroMultiplierBadge.innerHTML = `Factor Total F = <strong>${factorTotal}%</strong> (${(factorTotal / 100).toFixed(2)}×)`;
 
-  dom.slipBaseC.textContent = `S/ ${formatCurrency(valC)}`;
+  if (dom.slipBaseB) {
+    dom.slipBaseB.textContent = `S/ ${formatCurrency(valB)}`;
+  }
+  if (dom.slipBaseC) {
+    dom.slipBaseC.textContent = `S/ ${formatCurrency(valC)}`;
+  }
   dom.slipAmountPA.textContent = `S/ ${formatCurrency(montoPA)}`;
   dom.slipSubtotal.textContent = `S/ ${formatCurrency(subtotalSinIGV)}`;
   dom.slipIGV.textContent = `S/ ${formatCurrency(montoIGV)}`;
@@ -664,22 +678,29 @@ function applyPreset(presetKey) {
   populateSelectors(p);
 
   dom.inputA.value = p.a;
+
+  isAutoCalcB = true;
+  dom.btnToggleLockB.classList.add('active');
+
+  isAutoCalcC = true;
+  dom.btnToggleLockC.classList.add('active');
+
   if (p.b !== undefined) {
     dom.inputB.value = p.b;
-    isAutoTariffB = false;
+    isAutoCalcB = false;
     dom.btnToggleLockB.classList.remove('active');
-  } else {
-    isAutoTariffB = true;
-    dom.btnToggleLockB.classList.add('active');
+  }
+
+  if (p.c !== undefined) {
+    dom.inputC.value = p.c;
+    isAutoCalcC = false;
+    dom.btnToggleLockC.classList.remove('active');
   }
 
   dom.inputDBO5.value = p.dbo5;
   dom.inputDQO.value = p.dqo;
   dom.inputSST.value = p.sst;
   dom.inputAyG.value = p.ayg;
-
-  isAutoCalcC = true;
-  dom.btnToggleLockC.classList.add('active');
 
   calculateVMA();
 }
@@ -710,25 +731,26 @@ function initListeners() {
   // Volumen A
   dom.inputA.addEventListener('input', calculateVMA);
 
-  // Tarifa B manual
+  // Input B (Importe facturado alcantarillado manual)
   dom.inputB.addEventListener('input', () => {
-    isAutoTariffB = false;
+    isAutoCalcB = false;
     dom.btnToggleLockB.classList.remove('active');
-    dom.bSourceHint.textContent = 'Tarifa personalizada ingresada manualmente';
+    if (dom.bSourceHint) dom.bSourceHint.textContent = 'Importe personalizado ingresado manualmente (Sin IGV)';
     calculateVMA();
   });
 
   // Bloqueo B
   dom.btnToggleLockB.addEventListener('click', () => {
-    isAutoTariffB = !isAutoTariffB;
-    dom.btnToggleLockB.classList.toggle('active', isAutoTariffB);
+    isAutoCalcB = !isAutoCalcB;
+    dom.btnToggleLockB.classList.toggle('active', isAutoCalcB);
     calculateVMA();
   });
 
-  // Input C manual
+  // Input C (Importe facturado agua manual)
   dom.inputC.addEventListener('input', () => {
     isAutoCalcC = false;
     dom.btnToggleLockC.classList.remove('active');
+    if (dom.cSourceHint) dom.cSourceHint.textContent = 'Importe personalizado ingresado manualmente (Sin IGV)';
     calculateVMA();
   });
 
