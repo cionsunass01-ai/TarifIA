@@ -259,8 +259,10 @@ function lookupTariffRecord() {
   const locData = epData[loc];
   if (!locData) return null;
   const perData = locData[period];
-  if (!perData) return null;
-  const catData = perData[cat];
+  let catData = perData[cat];
+  if (!catData && cat === 'Comercial y otros') {
+    catData = perData['Comercial y otros I'];
+  }
   if (!catData || catData.length === 0) return null;
 
   // Desglose por bloques de consumo
@@ -604,6 +606,41 @@ function populateSelectors(presetTarget = null) {
   updateDependentDropdowns(presetTarget);
 }
 
+// Obtener categorías disponibles dinámicamente según EP, Localidad y Periodo
+function getCategoriesFor(ep, loc, period) {
+  const db = window.TARIFAS_DB;
+  if (!db || !db.catalog || !db.catalog[ep] || !db.catalog[ep][loc]) {
+    return db?.categorias?.[ep] || ['Comercial y otros', 'Estatal', 'Industrial'];
+  }
+
+  const locData = db.catalog[ep][loc];
+  if (period && locData[period]) {
+    return Object.keys(locData[period]);
+  }
+
+  const catSet = new Set();
+  Object.values(locData).forEach(perObj => {
+    Object.keys(perObj).forEach(cat => catSet.add(cat));
+  });
+  return Array.from(catSet);
+}
+
+function updateCategoryDropdown(targetCategory = null) {
+  const currentEP = dom.selectEP.value;
+  const currentLoc = dom.selectLocalidad.value;
+  const currentPeriod = dom.selectPeriodo.value;
+  const prevSelected = targetCategory || dom.selectCategoria.value;
+
+  const cats = getCategoriesFor(currentEP, currentLoc, currentPeriod);
+  dom.selectCategoria.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+
+  if (prevSelected && cats.includes(prevSelected)) {
+    dom.selectCategoria.value = prevSelected;
+  } else if (cats.length > 0) {
+    dom.selectCategoria.value = cats[0];
+  }
+}
+
 function updateDependentDropdowns(presetTarget = null) {
   const db = window.TARIFAS_DB;
   const currentEP = dom.selectEP.value;
@@ -615,12 +652,8 @@ function updateDependentDropdowns(presetTarget = null) {
     dom.selectLocalidad.value = presetTarget.localidad;
   }
 
-  // Categorías
-  const cats = db.categorias[currentEP] || [];
-  dom.selectCategoria.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-  if (presetTarget && presetTarget.categoria && cats.includes(presetTarget.categoria)) {
-    dom.selectCategoria.value = presetTarget.categoria;
-  }
+  // Categorías según la EP y Localidad seleccionadas
+  updateCategoryDropdown(presetTarget ? presetTarget.categoria : null);
 }
 
 // Cargar preset
@@ -659,10 +692,20 @@ function initListeners() {
     calculateVMA();
   });
 
-  // Cambio en Localidad, Periodo, Categoría
-  [dom.selectLocalidad, dom.selectPeriodo, dom.selectCategoria].forEach(select => {
-    select.addEventListener('change', calculateVMA);
+  // Cambio en Localidad
+  dom.selectLocalidad.addEventListener('change', () => {
+    updateCategoryDropdown();
+    calculateVMA();
   });
+
+  // Cambio en Periodo
+  dom.selectPeriodo.addEventListener('change', () => {
+    updateCategoryDropdown();
+    calculateVMA();
+  });
+
+  // Cambio en Categoría
+  dom.selectCategoria.addEventListener('change', calculateVMA);
 
   // Volumen A
   dom.inputA.addEventListener('input', calculateVMA);
